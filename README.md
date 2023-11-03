@@ -14,7 +14,7 @@ https://julialang.org/
 
 Like python, Julia also has an interactive environment (commonly known as REPL) which can be used to add packages and perform simple tests as shown in the picture below.
 
-![Screenshot from 2022-08-01 13-00-40](https://user-images.githubusercontent.com/87823118/182234995-db174ea5-3157-4b8c-98b9-dd0aeabc4399.png)
+![Screenshot from 2023-11-03 11-42-15](https://github.com/ayushsaurabh/B-SIM/assets/87823118/ab78d203-dfd2-4b96-9c06-bbd195b4ea45)
 
 
 In Windows, this interactive environment can be started by clicking on the Julia icon on Desktop that is created upon installation or by going into the programs menu directly. We use this environment to install some essential julia packages that help simplify linear algebra and statistical calculations, and plotting. To add these packages via julia REPL, first enter the julia package manager by executing "]" command in the REPL. Then simply execute the following command to install all these packages at the same time. 
