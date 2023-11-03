@@ -2,27 +2,32 @@
 Physically Accurate Structured Illumination Microscopy Reconstruction
 
 
-B-SIM is a structured illumination micrsocopy reconstruction algorithm that accurately incorporates all sources of noise in the data and provides stricly positive solutions without arbitrary smoothness constraints. It implements Markov chain Monte Carlo (MCMC) algorithms to learn probability distributions over the main function of interest: fluorescence profile. These tools can be used in a simple plug and play manner. Check the following paper to see details of all the mathematics involved in the development of B-SIM:
+B-SIM is a structured illumination micrsocopy reconstruction algorithm that accurately incorporates all sources of noise in the data and provides stricly positive solutions without arbitrary smoothness constraints. It implements Markov chain Monte Carlo (MCMC) algorithms to learn probability distributions over the main function of interest: fluorescence profile (product of fluorophore density and quantum yield given illumination). These tools can be used in a simple plug and play manner. Check the following paper to see details of all the mathematics involved in the development of B-SIM:
 
 https://biorxiv.org/cgi/content/short/2022.07.20.500887v1
 
 ## Julia Installation
 
-All the codes are written in Julia language for high performance/speed and its open-source/free availability. Julia also allows easy parallelization of all the codes. To install julia, please download and install julia language installer from their official website (see below) for your operating system or use your package manager. The current version of the code has been successfully tested on linux (Ubuntu 22.04), macOS 12, and Windows.
+All the codes are written in Julia language for high performance/speed (similar to C and Fortran) and its open-source/free availability. Julia also allows easy parallelization of all the codes. To install julia, please download and install julia language installer from their official website (see below) for your operating system or use your package manager. The current version of the code has been successfully tested on linux (Ubuntu 22.04), macOS 12 (TEST), and Windows.
 
 https://julialang.org/
 
-Like python, Julia also has an interactive environment (commonly known as REPL) which can be used to add packages and perform simple tests. Complex programs like B-SIM, however, require scripts for better organization.
-
-Once the julia language has been installed, some essential julia packages are required to be added that help simplify linear algebra and statistical calculations, and plotting. To add these packages via julia REPL, first enter the julia package manager by executing "]" command in the REPL. Then simply execute the following command to install all these packages at the same time. 
-
-```add Random Distributions LinearAlgebra Statistics Plots StatsPlots KernelDensity HDF5```
-
-Also, see the image below for an example of the package installation process in julia REPL.
+Like python, Julia also has an interactive environment (commonly known as REPL) which can be used to add packages and perform simple tests as shown in the picture below.
 
 ![Screenshot from 2022-08-01 13-00-40](https://user-images.githubusercontent.com/87823118/182234995-db174ea5-3157-4b8c-98b9-dd0aeabc4399.png)
 
+
+In Windows, this interactive environment can be started by clicking on the Julia icon on Desktop that is created upon installation or by going into the programs menu directly. We use this environment to install some essential julia packages that help simplify linear algebra and statistical calculations, and plotting. To add these packages via julia REPL, first enter the julia package manager by executing "]" command in the REPL. Then simply execute the following command to install all these packages at the same time. 
+
+```add Random, SpecialFunctions, Distributions, Distributed, LinearAlgebra, Statistics, Plots, HDF5, TiffImages```
+
+
+
 ## Test Example
+
+Complex programs like B-SIM, however, require scripts for better organization. B-SIM is currently organized into two scripts. First script "BSIM.jl" contains all the functions performing SIM reconstruction and the second script "input_parameters.jl" defines all the input parameters needed to perform reconstruction. These parameters define the parameters of the microscope 
+
+
 We provide two tiff files "example_1_raw_images.tif" and "example_1_illumination_patterns.tif" for a simple test of our code that can be run on a personal computer. 
 
 ## A Brief Description of the Sampler
