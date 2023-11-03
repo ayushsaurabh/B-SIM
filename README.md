@@ -25,12 +25,11 @@ In Windows, this interactive environment can be started by clicking on the Julia
 
 ## Test Example
 
-Complex programs like B-SIM, however, require scripts for better organization. B-SIM is currently organized into two scripts. First script "BSIM.jl" contains all the functions performing SIM reconstruction and the second script "input_parameters.jl" defines all the input parameters needed to perform reconstruction. These parameters define the shape of the microscope point spread function (numerical aperture, magnification, light wavelength), camera noise (gain, CCD sensitivity, readout), directory (folder) where files are located, file name, parallelization and inference settings. 
+Complex programs like B-SIM require scripts for better organization instead of typing functions into the REPL for every run. B-SIM is currently organized into two scripts. First script "BSIM.jl" contains all the functions performing SIM reconstruction and the second script "input_parameters.jl" defines all the input parameters needed to perform reconstruction (see the image below). 
 
 ![Screenshot from 2023-11-03 10-53-58](https://github.com/ayushsaurabh/B-SIM/assets/87823118/8480b736-ed19-4d12-8376-46a93bbdbe4b)
 
-
-We provide two tiff files "example_1_raw_images.tif" and "example_1_illumination_patterns.tif" for a simple test of our code that can be run on a personal computer. 
+These parameters define the shape of the microscope point spread function (numerical aperture, magnification, light wavelength), camera noise (gain, CCD sensitivity, readout), directory (folder) where files are located, file name, parallelization and inference settings. Using the settings in the image above, we here provide a simple plug and play example to test the functioning of B-SIM on a personal computer. For this example, we provide two tiff files "example_1_raw_images.tif" and "example_1_illumination_patterns.tif" containing 9 sinuosidal patterns and corresponding raw images. With the default settings in the image above, the code divides the image into 4 sub-images of equal size (a 2x2 grid). The sub-images are then sent to each processor and inference is performed on the fluorescence profile. The number of processors can be changed if running on a more powerful computer.
 
 ## A Brief Description of the Sampler
 
@@ -38,12 +37,8 @@ The samplers here execute a Markov Chain Monte Carlo (MCMC) algorithm (Gibbs) wh
 
 The variance of the proposal distribution typically decides how often proposals are accepted/rejected. A larger covariance or movement away from the previous sample would lead to a larger change in likelihood/posterior values. Since the sampler prefers movement towards high probability regions, a larger movement towards low probability regions would lead to likely rejection of the sample compared to smaller movement.
 
-The collected samples can then be used to compute statistical quantities and plot probability distributions. The plotting function used by the sampler in this code allows monitoring of posterior values, most probable model for the molecule, and distributions over transition rates and FRET efficiencies.
+The collected samples can then be used to compute statistical quantities and plot probability distributions. The plotting function used by the sampler in this code allows monitoring of posterior values and current fluorescence profile sample.
 
 As mentioned before, sampler prefers movement towards higher probability regions of the posterior distribution. This means that if parameters are initialized in low probability regions of the posterior, which is typically the case, the posterior would appear to increase initially for many iterations (hundreds to thousands depending on the complexity of the model). This initial period is called burn-in. After burn-in, convergence is achieved where the posterior would typically fluctuate around some mean/average value. The convergence typically indicates that the sampler has reached the maximum of the posterior distribution (the most probability region), that is, sampler generates most samples from higher probability region. In other words, given a large collection of samples, the probability density in a region of parameter space is proportional to the number of samples collected from that region. 
  
 All the samples collected during burn-in are usually ignored when computing statistical properties and presenting the final posterior distribution. 
-
-
-## Functions and Output
-B-SIM is organized in such a way that all the user input is accomplished via the "input_parameters.jl" file. It can be used to provide file names for experimental input SIM images in TIFF format and sampler output as well as microscope/camera parameters. See the respective files for more details (they are well-commented). The functions involved in the both specializations of BNP-FRET and their respective outputs are briefly described below:
