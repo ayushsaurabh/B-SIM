@@ -27,6 +27,8 @@ In Windows, this interactive environment can be started by clicking on the Julia
 
 Complex programs like B-SIM, however, require scripts for better organization. B-SIM is currently organized into two scripts. First script "BSIM.jl" contains all the functions performing SIM reconstruction and the second script "input_parameters.jl" defines all the input parameters needed to perform reconstruction. These parameters define the shape of the microscope point spread function (numerical aperture, magnification, light wavelength), camera noise (gain, CCD sensitivity, readout), directory (folder) where files are located, file name, parallelization and inference settings. 
 
+![Screenshot from 2023-11-03 10-53-58](https://github.com/ayushsaurabh/B-SIM/assets/87823118/8480b736-ed19-4d12-8376-46a93bbdbe4b)
+
 
 We provide two tiff files "example_1_raw_images.tif" and "example_1_illumination_patterns.tif" for a simple test of our code that can be run on a personal computer. 
 
