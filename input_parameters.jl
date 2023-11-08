@@ -1,4 +1,4 @@
-const working_directory = "/home/singularity/Dropbox (ASU)/bayesianCodes/julia/structured_illumination/B-SIM/"
+const working_directory = "/home/singularity/B-SIM/"
 
 # Image Properties
 const raw_image_size::Integer = 84
