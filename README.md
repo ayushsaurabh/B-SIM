@@ -31,13 +31,13 @@ To get out of the package manager, simply hit the backspace key.
 
 Complex programs like B-SIM require scripts for better organization instead of typing functions into the REPL for every run. B-SIM is currently organized into two scripts. First script "B-SIM.jl" contains all the functions performing SIM reconstruction and the second script "input_parameters.jl" defines all the input parameters needed to perform reconstruction (see the image below).
 
+![Screenshot from 2023-11-08 15-59-31](https://github.com/ayushsaurabh/B-SIM/assets/87823118/1093280b-cff0-47e7-abfe-844295982ab7)
 
-![Screenshot from 2023-11-08 11-22-04](https://github.com/ayushsaurabh/B-SIM/assets/87823118/588a6117-0ce8-4237-aa41-e03c971d968c)
 
 
 These parameters define the shape of the microscope point spread function (numerical aperture, magnification, light wavelength), camera noise (gain, CCD sensitivity, readout), directory (folder) where files are located, file name, parallelization and inference settings. Using the settings in the image above, we here provide a simple plug and play example to test the functioning of B-SIM on a personal computer. For this example, we provide three tiff files "raw_images_line_pairs_84x84_500nm_highSNR.tif", "illumination_patterns_line_pairs_168x168_500nm_highSNR.tif", and "ground_truth_line_pairs_168x168_500nm_highSNR.tif" containing 9 sinuosidal patterns and corresponding raw images as well as the ground truth. Currently, B-SIM only accepts square images but can be easily modified to accept rectangular images. With the default settings in the image above, the code divides the image into 16 sub-images of equal size (a 4x4 grid). The sub-images are then sent to each processor and inference is performed on the fluorescence profile. The number of processors can be changed if running on a more powerful computer by changing "n_procs_per_dim" parameter.
 
-To run this example, we suggest putting B-SIM scripts and the input tif files in the same folder/directory and changing the working directory path in "input_parameters.jl" file to this folder. Next, if running on a Windows machine, first confirm the current folder that julia is being run from by executing the following command in the REPL:
+To run this example, we suggest putting B-SIM scripts and the input tif files in the same folder/directory. Next, if running on a Windows machine, first confirm the current folder that julia is being run from by executing the following command in the REPL:
 
 ```pwd()```
 
