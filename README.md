@@ -14,7 +14,8 @@ https://julialang.org/
 
 Like python, Julia also has an interactive environment (commonly known as REPL) which can be used to add packages and perform simple tests as shown in the picture below.
 
-![Screenshot from 2023-11-03 11-42-15](https://github.com/ayushsaurabh/B-SIM/assets/87823118/ab78d203-dfd2-4b96-9c06-bbd195b4ea45)
+
+![Screenshot from 2023-11-08 14-36-41](https://github.com/ayushsaurabh/B-SIM/assets/87823118/05bdffb9-6857-4209-9d8d-97cedd3a3578)
 
 
 In Windows, this interactive environment can be started by clicking on the Julia icon on Desktop that is created upon installation or by going into the programs menu directly. On Linux or macOS machines, julia REPL can be accessed by simply typing julia in the terminal. We use this environment to install some essential julia packages that help simplify linear algebra and statistical calculations, and plotting. To add these packages via julia REPL, first enter the julia package manager by executing "]" command in the REPL. Then simply execute the following command to install all these packages at the same time. 
@@ -22,11 +23,17 @@ In Windows, this interactive environment can be started by clicking on the Julia
 ```add Random, SpecialFunctions, Distributions, Distributed, LinearAlgebra, Statistics, Plots, HDF5, TiffImages```
 
 
+![Screenshot from 2023-11-08 14-40-31](https://github.com/ayushsaurabh/B-SIM/assets/87823118/27ffde07-7eb8-40a5-871b-cc4ea0e34859)
+
+
+
 ## Test Example
 
-Complex programs like B-SIM require scripts for better organization instead of typing functions into the REPL for every run. B-SIM is currently organized into two scripts. First script "B-SIM.jl" contains all the functions performing SIM reconstruction and the second script "input_parameters.jl" defines all the input parameters needed to perform reconstruction (see the image below). 
+Complex programs like B-SIM require scripts for better organization instead of typing functions into the REPL for every run. B-SIM is currently organized into two scripts. First script "B-SIM.jl" contains all the functions performing SIM reconstruction and the second script "input_parameters.jl" defines all the input parameters needed to perform reconstruction (see the image below).
 
-![Screenshot from 2023-11-08 11-22-04](https://github.com/ayushsaurabh/B-SIM/assets/87823118/bed7612d-ff13-4d7c-ba5d-f6eae36e1f44)
+
+![Screenshot from 2023-11-08 11-22-04](https://github.com/ayushsaurabh/B-SIM/assets/87823118/588a6117-0ce8-4237-aa41-e03c971d968c)
+
 
 These parameters define the shape of the microscope point spread function (numerical aperture, magnification, light wavelength), camera noise (gain, CCD sensitivity, readout), directory (folder) where files are located, file name, parallelization and inference settings. Using the settings in the image above, we here provide a simple plug and play example to test the functioning of B-SIM on a personal computer. For this example, we provide three tiff files "raw_images_line_pairs_84x84_500nm_highSNR.tif", "illumination_patterns_line_pairs_168x168_500nm_highSNR.tif", and "ground_truth_line_pairs_168x168_500nm_highSNR.tif" containing 9 sinuosidal patterns and corresponding raw images as well as the ground truth. Currently, B-SIM only accepts square images but can be easily modified to accept rectangular images. With the default settings in the image above, the code divides the image into 16 sub-images of equal size (a 4x4 grid). The sub-images are then sent to each processor and inference is performed on the fluorescence profile. The number of processors can be changed if running on a more powerful computer by changing "n_procs_per_dim" parameter.
 
@@ -40,7 +47,9 @@ Please note here that Windows machines used backslashes "\" to describe folder p
 
 B-SIM code can now be executed by simply importing the "B-SIM.jl" in the REPL as shown in the picture below
 
-![Screenshot from 2023-11-08 14-10-07](https://github.com/ayushsaurabh/B-SIM/assets/87823118/285b2fe8-60b6-4776-88b5-9c30e9ac2581)
+
+![Screenshot from 2023-11-08 14-10-07](https://github.com/ayushsaurabh/B-SIM/assets/87823118/cf5bf788-ab49-48f6-b2e2-586382eb1c0f)
+
 
 On a linux or macOS machine, the "B-SIM.jl" script can be run directly from the terminal after entering the B-SIM directory and executing the following command:
 
@@ -48,11 +57,16 @@ On a linux or macOS machine, the "B-SIM.jl" script can be run directly from the 
 
 B-SIM is a fully parallelized code and starts executing by first adding the required number of processors. Next, all the input tif files are imported and divided according to the parallelization grid (4x4 by default). The sub-images are then sent to each processor. All the functions involved in SIM reconstruction are compiled next. Finally, the sampler starts and with each iteration outputs the log(posterior) values and a temperature parameter that users are not required to modify (see picture below).
 
-![Screenshot from 2023-11-08 14-20-59](https://github.com/ayushsaurabh/B-SIM/assets/87823118/600f234e-27a5-4043-814a-9a053f280019)
+
+![Screenshot from 2023-11-08 14-20-59](https://github.com/ayushsaurabh/B-SIM/assets/87823118/28210b7f-3fdb-40b7-9929-5cc7f2ca9925)
+
 
 Depending on whether plotting option is chosed to be ```true``` or ```false``` in the "input_parameters.jl" file, the code also generates a plot showing the the log(posterior), one of the input raw images, the intermediate shot noise image, ground truth, current sample, and a mean of the previous samples (depending on averaging frequency) as shown in the picture below.
 
-![Screenshot from 2023-11-08 14-27-24](https://github.com/ayushsaurabh/B-SIM/assets/87823118/55779108-54fb-4acd-9a84-2af22b36f570)
+
+![Screenshot from 2023-11-08 14-27-24](https://github.com/ayushsaurabh/B-SIM/assets/87823118/8ecfc77e-ac1f-4be9-b8ef-5d4b7da5ce0f)
+
+
 
 ## A Brief Description of the Sampler
 
