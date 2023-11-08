@@ -1,4 +1,4 @@
-const working_directory = "/home/singularity/B-SIM/"
+const working_directory = string(pwd(),"/")
 
 # Image Properties
 const raw_image_size::Integer = 84
