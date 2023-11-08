@@ -24,19 +24,35 @@ In Windows, this interactive environment can be started by clicking on the Julia
 
 ## Test Example
 
-Complex programs like B-SIM require scripts for better organization instead of typing functions into the REPL for every run. B-SIM is currently organized into two scripts. First script "BSIM.jl" contains all the functions performing SIM reconstruction and the second script "input_parameters.jl" defines all the input parameters needed to perform reconstruction (see the image below). 
+Complex programs like B-SIM require scripts for better organization instead of typing functions into the REPL for every run. B-SIM is currently organized into two scripts. First script "B-SIM.jl" contains all the functions performing SIM reconstruction and the second script "input_parameters.jl" defines all the input parameters needed to perform reconstruction (see the image below). 
 
 ![Screenshot from 2023-11-08 11-22-04](https://github.com/ayushsaurabh/B-SIM/assets/87823118/bed7612d-ff13-4d7c-ba5d-f6eae36e1f44)
 
-These parameters define the shape of the microscope point spread function (numerical aperture, magnification, light wavelength), camera noise (gain, CCD sensitivity, readout), directory (folder) where files are located, file name, parallelization and inference settings. Using the settings in the image above, we here provide a simple plug and play example to test the functioning of B-SIM on a personal computer. For this example, we provide three tiff files "raw_images_line_pairs_84x84_500nm_highSNR.tif", "illumination_patterns_line_pairs_168x168_500nm_highSNR.tif", and "ground_truth_line_pairs_168x168_500nm_highSNR.tif" containing 9 sinuosidal patterns and corresponding raw images as well as the ground truth. Currenly, B-SIM only accepts square images but can be easily modified to accept rectangular images. With the default settings in the image above, the code divides the image into 16 sub-images of equal size (a 4x4 grid). The sub-images are then sent to each processor and inference is performed on the fluorescence profile. The number of processors can be changed if running on a more powerful computer.
+These parameters define the shape of the microscope point spread function (numerical aperture, magnification, light wavelength), camera noise (gain, CCD sensitivity, readout), directory (folder) where files are located, file name, parallelization and inference settings. Using the settings in the image above, we here provide a simple plug and play example to test the functioning of B-SIM on a personal computer. For this example, we provide three tiff files "raw_images_line_pairs_84x84_500nm_highSNR.tif", "illumination_patterns_line_pairs_168x168_500nm_highSNR.tif", and "ground_truth_line_pairs_168x168_500nm_highSNR.tif" containing 9 sinuosidal patterns and corresponding raw images as well as the ground truth. Currently, B-SIM only accepts square images but can be easily modified to accept rectangular images. With the default settings in the image above, the code divides the image into 16 sub-images of equal size (a 4x4 grid). The sub-images are then sent to each processor and inference is performed on the fluorescence profile. The number of processors can be changed if running on a more powerful computer by changing "n_procs_per_dim" parameter.
 
 To run this example, we suggest putting B-SIM scripts and the input tif files in the same folder/directory and changing the working directory path in "input_parameters.jl" file to this folder. Next, if running on a Windows machine, first confirm the current folder that julia is being run from by executing the following command in the REPL:
 
 ```pwd()```
 
-If the output is different from the path containing the scripts and tiff files, the current path can be changed by executing the following command:
+Please note here that Windows machines used backslashes "\" to describe folder paths unlike Linuxa and macOS where forward slashes "/" are used. Appropriate modifications therefore must be made to the folder paths. Now, if the output of the command above is different from the path containing the scripts and tiff files, the current path can be changed by executing the following command:
 
 ```cd("/home/singularity/B-SIM/")```
+
+B-SIM code can now be executed by simply importing the "B-SIM.jl" in the REPL as shown in the picture below
+
+![Screenshot from 2023-11-08 14-10-07](https://github.com/ayushsaurabh/B-SIM/assets/87823118/285b2fe8-60b6-4776-88b5-9c30e9ac2581)
+
+On a linux or macOS machine, the "B-SIM.jl" script can be run directly from the terminal after entering the B-SIM directory and executing the following command:
+
+```julia B-SIM.jl```
+
+B-SIM is a fully parallelized code and starts executing by first adding the required number of processors. Next, all the input tif files are imported and divided according to the parallelization grid (4x4 by default). The sub-images are then sent to each processor. All the functions involved in SIM reconstruction are compiled next. Finally, the sampler starts and with each iteration outputs the log(posterior) values and a temperature parameter that users are not required to modify (see picture below).
+
+![Screenshot from 2023-11-08 14-20-59](https://github.com/ayushsaurabh/B-SIM/assets/87823118/600f234e-27a5-4043-814a-9a053f280019)
+
+Depending on whether plotting option is chosed to be ```true``` or ```false``` in the "input_parameters.jl" file, the code also generates a plot showing the the log(posterior), one of the input raw images, the intermediate shot noise image, ground truth, current sample, and a mean of the previous samples (depending on averaging frequency) as shown in the picture below.
+
+![Screenshot from 2023-11-08 14-27-24](https://github.com/ayushsaurabh/B-SIM/assets/87823118/55779108-54fb-4acd-9a84-2af22b36f570)
 
 ## A Brief Description of the Sampler
 
