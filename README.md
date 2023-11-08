@@ -17,10 +17,9 @@ Like python, Julia also has an interactive environment (commonly known as REPL) 
 ![Screenshot from 2023-11-03 11-42-15](https://github.com/ayushsaurabh/B-SIM/assets/87823118/ab78d203-dfd2-4b96-9c06-bbd195b4ea45)
 
 
-In Windows, this interactive environment can be started by clicking on the Julia icon on Desktop that is created upon installation or by going into the programs menu directly. We use this environment to install some essential julia packages that help simplify linear algebra and statistical calculations, and plotting. To add these packages via julia REPL, first enter the julia package manager by executing "]" command in the REPL. Then simply execute the following command to install all these packages at the same time. 
+In Windows, this interactive environment can be started by clicking on the Julia icon on Desktop that is created upon installation or by going into the programs menu directly. On Linux or macOS machines, julia REPL can be accessed by simply typing julia in the terminal. We use this environment to install some essential julia packages that help simplify linear algebra and statistical calculations, and plotting. To add these packages via julia REPL, first enter the julia package manager by executing "]" command in the REPL. Then simply execute the following command to install all these packages at the same time. 
 
 ```add Random, SpecialFunctions, Distributions, Distributed, LinearAlgebra, Statistics, Plots, HDF5, TiffImages```
-
 
 
 ## Test Example
@@ -29,7 +28,15 @@ Complex programs like B-SIM require scripts for better organization instead of t
 
 ![Screenshot from 2023-11-08 11-22-04](https://github.com/ayushsaurabh/B-SIM/assets/87823118/bed7612d-ff13-4d7c-ba5d-f6eae36e1f44)
 
-These parameters define the shape of the microscope point spread function (numerical aperture, magnification, light wavelength), camera noise (gain, CCD sensitivity, readout), directory (folder) where files are located, file name, parallelization and inference settings. Using the settings in the image above, we here provide a simple plug and play example to test the functioning of B-SIM on a personal computer. For this example, we provide two tiff files "example_1_raw_images.tif" and "example_1_illumination_patterns.tif" containing 9 sinuosidal patterns and corresponding raw images. With the default settings in the image above, the code divides the image into 16 sub-images of equal size (a 4x4 grid). The sub-images are then sent to each processor and inference is performed on the fluorescence profile. The number of processors can be changed if running on a more powerful computer.
+These parameters define the shape of the microscope point spread function (numerical aperture, magnification, light wavelength), camera noise (gain, CCD sensitivity, readout), directory (folder) where files are located, file name, parallelization and inference settings. Using the settings in the image above, we here provide a simple plug and play example to test the functioning of B-SIM on a personal computer. For this example, we provide three tiff files "raw_images_line_pairs_84x84_500nm_highSNR.tif", "illumination_patterns_line_pairs_168x168_500nm_highSNR.tif", and "ground_truth_line_pairs_168x168_500nm_highSNR.tif" containing 9 sinuosidal patterns and corresponding raw images as well as the ground truth. Currenly, B-SIM only accepts square images but can be easily modified to accept rectangular images. With the default settings in the image above, the code divides the image into 16 sub-images of equal size (a 4x4 grid). The sub-images are then sent to each processor and inference is performed on the fluorescence profile. The number of processors can be changed if running on a more powerful computer.
+
+To run this example, we suggest putting B-SIM scripts and the input tif files in the same folder/directory and changing the working directory path in "input_parameters.jl" file to this folder. Next, if running on a Windows machine, first confirm the current folder that julia is being run from by executing the following command in the REPL:
+
+```pwd()```
+
+If the output is different from the path containing the scripts and tiff files, the current path can be changed by executing the following command:
+
+```cd("/home/singularity/B-SIM/")```
 
 ## A Brief Description of the Sampler
 
