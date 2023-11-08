@@ -10,25 +10,38 @@
 ###########################################################
 
 
+include("input_parameters.jl")
+
 # These julia packages help simplify calculations and plotting.
 using Distributed
 
+
 println("Adding processors...")
 flush(stdout);
-addprocs(16, topology=:master_worker)
+addprocs(n_procs_per_dim^2, topology=:master_worker)
 println("Done.")
 flush(stdout);
 
 @everywhere begin
 	using Random, Distributions
-	rng = MersenneTwister(myid());
 	using TiffImages, FixedPointNumbers
 	using LinearAlgebra
 	using SpecialFunctions
 	using FFTW
 end
 
-using Plots
+if plotting == true
+
+	println("Plotting is On.")
+	flush(stdout);
+
+	using Plots
+else
+
+	println("Plotting is Off.")
+	flush(stdout);
+
+end
 using HDF5
 
 ###############################################################################
@@ -78,7 +91,7 @@ using HDF5
 
 
 
-@everywhere include("input_parameters.jl")
+@everywhere workers() include("input_parameters.jl")
 
 function get_ground_truth()
 	file_name = string(working_directory,
@@ -576,7 +589,7 @@ end
 			for l in 0:1
 				for m in 0:1
 					proposed_gt[i+l, j+m] =
-						rand(rng, Normal(log(gt[i+l, j+m]),
+						rand(Normal(log(gt[i+l, j+m]),
 										covariance_gt), 1)[1]
 					proposed_gt[i+l, j+m] = exp.(proposed_gt[i+l, j+m])
 				end
@@ -603,7 +616,7 @@ end
 
 
 
-			if log_hastings > log(rand(rng))
+			if log_hastings > log(rand())
 				gt = copy(proposed_gt)
 				mean_imgs_ij = copy(proposed_mean_imgs_ij)
 			end
@@ -632,7 +645,7 @@ end
    				old_log_posterior = old_log_likelihood  + old_log_prior
 
   				proposed_shot_noise_pixel =
- 					rand(rng, Poisson(shot_noise_images[pattern][ii, jj]), 1)[1]
+ 					rand(Poisson(shot_noise_images[pattern][ii, jj]), 1)[1]
 
   				new_log_likelihood = logpdf(Normal(sub_gain_map[ii, jj]*
                               	proposed_shot_noise_pixel +
@@ -658,7 +671,7 @@ end
 								log_backward_proposal_probability -
 								log_forward_proposal_probability
 
-  				if log_hastings > log(rand(rng))
+  				if log_hastings > log(rand())
   					shot_noise_images[pattern][ii, jj] =
                                      proposed_shot_noise_pixel
   				end
@@ -804,37 +817,38 @@ function save_data(current_draw::Integer,
 	return nothing
 end
 
-function plot_results(draw, mcmc_log_posterior, gt, shot_noise_images, mean_gt)
+if plotting == true
+	function plot_results(draw, mcmc_log_posterior, gt, shot_noise_images, mean_gt)
 
-	plot_a = plot(mcmc_log_posterior[1:draw], size=(2000, 2000),
-				legend=false,
-				title = "Log-Posterior");
-	plot_b = heatmap(gt[ghost_size+1:end-ghost_size,
-				ghost_size+1:end-ghost_size],
-				c=:grays, legend=false, size=(2000, 2000),
-				title = "Current SIM Sample");
+		plot_a = plot(mcmc_log_posterior[1:draw], size=(2000, 2000),
+					legend=false,
+					title = "Log-Posterior");
+		plot_b = heatmap(gt[ghost_size+1:end-ghost_size,
+					ghost_size+1:end-ghost_size],
+					c=:grays, legend=false, size=(2000, 2000),
+					title = "Current SIM Sample");
 
-	plot_c = heatmap(input_raw_images[1],
-				c=:grays, legend=false, size=(2000, 2000),
-			 	title = "A Raw Image");
-	plot_d = heatmap(shot_noise_images[1][
-				half_ghost_size+1:end-half_ghost_size,
-				half_ghost_size+1:end-half_ghost_size],
-				c=:grays, legend=false, size=(2000, 2000),
-				title = "Shot Noise Image");
+		plot_c = heatmap(input_raw_images[1],
+					c=:grays, legend=false, size=(2000, 2000),
+				 	title = "A Raw Image");
+		plot_d = heatmap(shot_noise_images[1][
+					half_ghost_size+1:end-half_ghost_size,
+					half_ghost_size+1:end-half_ghost_size],
+					c=:grays, legend=false, size=(2000, 2000),
+					title = "Shot Noise Image");
 
-	plot_e = heatmap(ground_truth,
-				c=:grays, legend=false, size=(2000, 2000),
-				title = "Ground Truth");
-	plot_f = heatmap(mean_gt[ghost_size+1:end-ghost_size,
-				ghost_size+1:end-ghost_size],
-				c=:grays, legend=false, size=(2000, 2000),
-				title = "Mean SIM Image");
+		plot_e = heatmap(ground_truth,
+					c=:grays, legend=false, size=(2000, 2000),
+					title = "Ground Truth");
+		plot_f = heatmap(mean_gt[ghost_size+1:end-ghost_size,
+					ghost_size+1:end-ghost_size],
+					c=:grays, legend=false, size=(2000, 2000),
+					title = "Mean SIM Image");
 
-	l = @layout [[a; b] [c; d] [e; f]]
-	display(plot(plot_a, plot_b, plot_c, plot_d, plot_e, plot_f,
-					 		layout = l, size = (3000, 2000)))
-	return nothing
+		display(plot(plot_c, plot_d, plot_e, plot_a, plot_b, plot_f,
+						 		layout = (2, 3), size = (3000, 2000)))
+		return nothing
+	end
 end
 
 function sampler_SIM(draws::Integer, initial_inferred_density::Matrix{Float64},
@@ -869,7 +883,9 @@ function sampler_SIM(draws::Integer, initial_inferred_density::Matrix{Float64},
 
 	averaging_counter::Float64 = 0.0
 
-	plot_results(draw, mcmc_log_posterior, gt, shot_noise_images, mean_gt)
+	if plotting == true
+		plot_results(draw, mcmc_log_posterior, gt, shot_noise_images, mean_gt)
+	end
 
 	for draw in 2:draws
 
@@ -913,7 +929,7 @@ function sampler_SIM(draws::Integer, initial_inferred_density::Matrix{Float64},
 
  		end
 
-		if draw % averaging_increment == 0
+		if draw % plotting_frequency == 0 && plotting == true
 			plot_results(draw, mcmc_log_posterior,
 						gt, shot_noise_images, mean_gt)
 		end
@@ -931,7 +947,7 @@ flush(stdout);
 # Initialize inferred images
 inferred_density = zeros(2*img_size+2*ghost_size, 2*img_size+2*ghost_size)
 inferred_density[ghost_size+1:end-ghost_size,
-			ghost_size+1:end-ghost_size]=rand(rng, 2*img_size, 2*img_size)
+			ghost_size+1:end-ghost_size]=rand(2*img_size, 2*img_size)
 inferred_shot_noise_images = deepcopy(raw_images_with_ghosts)
 
 for pattern in 1:9

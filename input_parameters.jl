@@ -34,7 +34,7 @@ const gamma_prior_shape::Float64 = 0.1
 const total_draws::Integer = 50000
 const averaging_starting_draw::Integer = 1
 const start_averaging_at::Integer = 200
-const averaging_increment::Integer = 1
+const averaging_increment::Integer = 20
 const annealing_increment::Integer = 1000
 const annealing_time_constant::Float64 = 20.0
 const annealing_starting_temperature::Float64 = 20.0
@@ -43,3 +43,6 @@ const annealing_starting_temperature::Float64 = 20.0
 # Parallelization Parameters
 const n_procs_per_dim::Integer = 4
 
+# Plotting Options
+const plotting = true
+const plotting_frequency = 1
