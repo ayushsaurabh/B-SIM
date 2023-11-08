@@ -57,6 +57,8 @@ On a linux or macOS machine, the "B-SIM.jl" script can be run directly from the 
 
 ```julia B-SIM.jl```
 
+WARNING: Please note that when running the code through the REPL, restart the REPL if B-SIM throws an error. Every execution of B-SIM adds processors to the julia REPL and processor ID or label increases in value. To make sure that processor labels always start at 1, we suggest avoiding restarting B-SIM in the same REPL.
+
 B-SIM is a fully parallelized code and starts executing by first adding the required number of processors. Next, all the input tif files are imported and divided according to the parallelization grid (4x4 by default). The sub-images are then sent to each processor. All the functions involved in SIM reconstruction are compiled next. Finally, the sampler starts and with each iteration outputs the log(posterior) values and a temperature parameter that users are not required to modify (see picture below).
 
 
