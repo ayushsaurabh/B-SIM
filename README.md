@@ -1,5 +1,5 @@
 # B-SIM
-Physically Accurate Structured Illumination Microscopy Reconstruction
+A Structured Illumination Microscopy Reconstruction Code with Spatial-Domain Noise Propagation
 
 
 B-SIM is a structured illumination micrsocopy reconstruction algorithm that accurately incorporates all sources of noise in the data and provides stricly positive solutions without arbitrary smoothness constraints. It implements Markov chain Monte Carlo (MCMC) algorithms to learn probability distributions over the main function of interest: fluorescence profile (product of fluorophore density and quantum yield given illumination). These tools can be used in a simple plug and play manner. Check the following paper to see details of all the mathematics involved in the development of B-SIM:
