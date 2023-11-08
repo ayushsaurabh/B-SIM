@@ -20,12 +20,12 @@ Like python, Julia also has an interactive environment (commonly known as REPL) 
 
 In Windows, this interactive environment can be started by clicking on the Julia icon on Desktop that is created upon installation or by going into the programs menu directly. On Linux or macOS machines, julia REPL can be accessed by simply typing julia in the terminal. We use this environment to install some essential julia packages that help simplify linear algebra and statistical calculations, and plotting. To add these packages via julia REPL, first enter the julia package manager by executing "]" command in the REPL. Then simply execute the following command to install all these packages at the same time. 
 
-```add Random, SpecialFunctions, Distributions, Distributed, LinearAlgebra, Statistics, Plots, HDF5, TiffImages```
+```add Random, SpecialFunctions, Distributions, Distributed, LinearAlgebra, Statistics, Plots, HDF5, TiffImages, FixedPointNumbers```
 
 
 ![Screenshot from 2023-11-08 14-40-31](https://github.com/ayushsaurabh/B-SIM/assets/87823118/27ffde07-7eb8-40a5-871b-cc4ea0e34859)
 
-
+To get out of the package manager, simply hit the backspace key.
 
 ## Test Example
 
@@ -46,6 +46,8 @@ Please note here that Windows machines used backslashes "\" to describe folder p
 ```cd("/home/singularity/B-SIM/")```
 
 B-SIM code can now be executed by simply importing the "B-SIM.jl" in the REPL as shown in the picture below
+
+```include("B-SIM.jl")```
 
 
 ![Screenshot from 2023-11-08 14-10-07](https://github.com/ayushsaurabh/B-SIM/assets/87823118/cf5bf788-ab49-48f6-b2e2-586382eb1c0f)
