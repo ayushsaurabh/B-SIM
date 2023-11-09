@@ -63,7 +63,7 @@ On a linux or macOS machine, the "B-SIM.jl" script can be run directly from the 
 
 **WARNING: Please note that when running the code through the REPL, restart the REPL if B-SIM throws an error. Every execution of B-SIM adds processors to the julia REPL and processor ID or label increases in value. To make sure that processor labels always start at 1, we suggest avoiding restarting B-SIM in the same REPL.**
 
-Now, B-SIM is a fully parallelized code and starts executing by first adding the required number of processors. Next, all the input tif files are imported and divided according to the parallelization grid (4x4 by default). The sub-images are then sent to each processor. All the functions involved in SIM reconstruction are compiled next. Finally, the sampler starts and with each iteration outputs the log(posterior) values and a temperature parameter that users are not required to modify (see picture below).
+Now, B-SIM is a fully parallelized code and starts execution by first adding the required number of processors. Next, all the input tif files are imported and divided according to the parallelization grid (4x4 by default). The sub-images are then sent to each processor. All the functions involved in SIM reconstruction are compiled next. Finally, the sampler starts and with each iteration outputs the log(posterior) values and a temperature parameter that users are not required to modify (see picture below).
 
 
 ![Screenshot from 2023-11-08 14-20-59](https://github.com/ayushsaurabh/B-SIM/assets/87823118/28210b7f-3fdb-40b7-9929-5cc7f2ca9925)
@@ -73,6 +73,17 @@ Depending on whether plotting option is chosed to be ```true``` or ```false``` i
 
 
 ![Screenshot from 2023-11-08 14-27-24](https://github.com/ayushsaurabh/B-SIM/assets/87823118/8ecfc77e-ac1f-4be9-b8ef-5d4b7da5ce0f)
+
+
+Finally, as samples are collected, B-SIM saves intermediate samples and analysis data onto the hard drive in the HDF5 format with file names that look like "mcmc_output_...1000.h5". **Ayush: Make the next sentences more readable** The save frequency can be modified by changing a few inference parameters in the "input_parameters.jl" file: "averaging_starting_draw" which is set based on when the sampler converges for the **first time**; "start_averaging_at" indicates the first sample to be used for calculating mean in each annealing cycle; "averaging_increment" sets the frequency at which samples used for calculating averages are collected. Annealing is a technique that is used here to uncorrelate the chain of samples by smoothing and widening the posterior at intermediate iterations, allowing the sampler to easily move far away from the current sample. Based on these parameters, the samples are saved whenever the following conditions are satisfied:
+
+```
+if (draw >= averaging_starting_draw) &&
+   (draw % annealing_increment >= start_averaging_at) &&
+   (draw % averaging_increment == 0)
+```
+where % indicates remainder.
+
 
 
 
