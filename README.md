@@ -25,7 +25,7 @@ In Windows, this interactive environment can be started by clicking on the Julia
 
 ![Screenshot from 2023-11-08 14-40-31](https://github.com/ayushsaurabh/B-SIM/assets/87823118/27ffde07-7eb8-40a5-871b-cc4ea0e34859)
 
-To get out of the package manager, simply hit the backspace key.
+**To get out of the package manager, simply hit the backspace key.**
 
 ## Test Example
 
