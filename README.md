@@ -82,7 +82,13 @@ if (draw >= averaging_starting_draw) and
    (draw % annealing_increment >= start_averaging_at) and
    (draw % averaging_increment == 0)
 ```
-where % indicates remainder upon division.
+where % indicates remainder upon division. For instance, using the default settings in the "input_parameters.jl" file shown above, the samples will be saved at iterations:
+
+``` 
+200, 220, 240, ..., 980,
+1200, 1220, 1240, ..., 1980,
+2200, 2220, 2240, ..., 2980, ...
+```
 
 
 
