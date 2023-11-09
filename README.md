@@ -78,8 +78,8 @@ Depending on whether plotting option is chosed to be ```true``` or ```false``` i
 Finally, as samples are collected, B-SIM saves intermediate samples and analysis data onto the hard drive in the HDF5 format with file names that look like "mcmc_output_...1000.h5". **Ayush: Make the next sentences more readable** The save frequency can be modified by changing a few inference parameters in the "input_parameters.jl" file: "averaging_starting_draw" which is set based on when the sampler converges for the **first time**; "start_averaging_at" indicates the first sample to be used for calculating mean in each annealing cycle; "averaging_increment" sets the frequency at which samples used for calculating averages are collected. Annealing is a technique that is used here to uncorrelate the chain of samples by smoothing and widening the posterior at intermediate iterations, allowing the sampler to easily move far away from the current sample. Based on these parameters, the samples are saved whenever the following conditions are satisfied:
 
 ```
-if (draw >= averaging_starting_draw) &&
-   (draw % annealing_increment >= start_averaging_at) &&
+if (draw >= averaging_starting_draw) and
+   (draw % annealing_increment >= start_averaging_at) and
    (draw % averaging_increment == 0)
 ```
 where % indicates remainder.
