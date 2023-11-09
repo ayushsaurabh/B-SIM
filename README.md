@@ -82,7 +82,7 @@ if (draw >= averaging_starting_draw) and
    (draw % annealing_increment >= start_averaging_at) and
    (draw % averaging_increment == 0)
 ```
-where % indicates remainder.
+where % indicates remainder upon division.
 
 
 
