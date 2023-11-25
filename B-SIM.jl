@@ -742,9 +742,6 @@ function sample_gt(draw::Integer, gt::Matrix{Float64},
 		sub_gt, sub_shot_noise_imgs =
 				sample_gt_neighborhood(temperature, sub_gt, sub_shot_noise_imgs)
 
-		# Garbage Collection and free memory
- 		GC.gc()
-
 	end
 
 
@@ -935,7 +932,7 @@ function sampler_SIM(draws::Integer, initial_inferred_density::Matrix{Float64},
 		end
 
 		# Garbage Collection and free memory
- 		GC.gc()
+ 		@everywhere GC.gc()
 	end
 
 	return gt, shot_noise_images
@@ -944,6 +941,7 @@ end
 
 println("Initializing SIM Reconstruction...")
 flush(stdout);
+
 # Initialize inferred images
 inferred_density = zeros(2*img_size+2*ghost_size, 2*img_size+2*ghost_size)
 inferred_density[ghost_size+1:end-ghost_size,
