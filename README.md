@@ -69,7 +69,7 @@ Now, B-SIM is a fully parallelized code and starts execution by first adding the
 ![Screenshot from 2023-11-08 14-20-59](https://github.com/ayushsaurabh/B-SIM/assets/87823118/28210b7f-3fdb-40b7-9929-5cc7f2ca9925)
 
 
-Depending on whether plotting option is chosed to be ```true``` or ```false``` in the "input_parameters.jl" file, the code also generates a plot showing the the log(posterior), one of the input raw images, the intermediate shot noise image, ground truth, current sample, and a mean of the previous samples (depending on averaging frequency) as shown in the picture below.
+Depending on whether plotting option is chosen to be ```true``` or ```false``` in the "input_parameters.jl" file, the code also generates a plot showing the the log(posterior), one of the input raw images, the intermediate shot noise image, ground truth, current sample, and a mean of the previous samples (depending on averaging frequency) as shown in the picture below.
 
 
 ![Screenshot from 2023-11-08 14-27-24](https://github.com/ayushsaurabh/B-SIM/assets/87823118/8ecfc77e-ac1f-4be9-b8ef-5d4b7da5ce0f)
