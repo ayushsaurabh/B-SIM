@@ -41,7 +41,7 @@ const annealing_starting_temperature::Float64 = 20.0
 
 
 # Parallelization Parameters
-const n_procs_per_dim::Integer = 4
+const n_procs_per_dim::Integer = 2
 
 # Plotting Options
 const plotting = true
