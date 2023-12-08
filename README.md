@@ -79,12 +79,13 @@ Depending on whether plotting option is chosen to be ```true``` or ```false``` i
 ![Screenshot from 2023-11-08 14-27-24](https://github.com/ayushsaurabh/B-SIM/assets/87823118/8ecfc77e-ac1f-4be9-b8ef-5d4b7da5ce0f)
 
 
-Finally, as samples are collected, B-SIM saves intermediate samples and analysis data onto the hard drive in the HDF5 format with file names that look like "mcmc_output_...1000.h5". **Ayush: Make the next sentences more readable** The save frequency can be modified by changing a few inference parameters in the "input_parameters.jl" file: "averaging_starting_draw" which is set based on when the sampler converges for the **first time**; "start_averaging_at" indicates the first sample to be used for calculating mean in each annealing cycle; "averaging_increment" sets the frequency at which samples used for calculating averages are collected. Annealing is a technique that is used here to uncorrelate the chain of samples by smoothing and widening the posterior at intermediate iterations, allowing the sampler to easily move far away from the current sample. Based on these parameters, the samples are saved whenever the following conditions are satisfied: 
+Finally, as samples are collected, B-SIM saves intermediate samples and analysis data onto the hard drive in the HDF5 format with file names that look like "mcmc_output_...1000.h5". The save frequency can be modified by changing a few inference parameters in the "input_parameters.jl" file: "initial_burn_in_period" which is set based on when the sampler converges for the **first time**; simulated annealing is restarted at regular intervals set by the parameter "annealing_frequency"; simulated annealing starts with temperature set by "annealing_starting_temperature" and then the temperature decays exponentially with time constant set by "annealing_time_constant"; samples to be averaged are collected after the "annealing_burn_in_period" during which the sampler converges after increasing the temperature; and lastly, samples are collected at the "averaging_frequency" after the annealing burn-in period. Use of simulated annealing here helps uncorrelate the chain of samples by smoothing and widening the posterior at intermediate iterations by raising temperature, allowing the sampler to easily move far away from the current sample. Based on these parameters, the samples are saved whenever the following conditions are satisfied: 
 
 ```
-if (draw >= averaging_starting_draw) and
-   (draw % annealing_increment >= start_averaging_at) and
-   (draw % averaging_increment == 0)
+if (draw >= initial_burn_in_period) &&
+   (draw % annealing_frequency >= annealing_burn_in_period) &&
+      (draw % averaging_frequency == 0)
+
 ```
 where % indicates remainder upon division. For instance, using the default settings in the "input_parameters.jl" file shown above, the samples will be saved at iterations:
 
@@ -95,16 +96,14 @@ where % indicates remainder upon division. For instance, using the default setti
 ```
 
 
-
-
 ## A Brief Description of the Sampler
 
-The sampler here execute a Markov Chain Monte Carlo (MCMC) algorithm (Gibbs) where samples for fluorescence profile at each pixel are generated sequentially from their corresponding probability distributions (posterior). First, the sampler creates/initiates arrays to store all the samples and posterior probability values. Next, new samples are then iteratively proposed using proposal (normal) distributions for each pixel, to be accepted or rejected by the Metropolis-Hastings step if direct sampling is not available. If accepted, the proposed sample is stored in the arrays otherwise the previous sample is stored at the same MCMC iteraion. 
+The sampler here execute a Markov Chain Monte Carlo (MCMC) algorithm (Gibbs) where samples for fluorescence intensity at each pixel are generated sequentially from their corresponding conditional probability distributions (posterior). First, the sampler creates/initiates arrays to store all the samples and joint posterior probability values. Next, new samples are then iteratively proposed using proposal (normal) distributions for each pixel, to be accepted or rejected by the Metropolis-Hastings step if direct sampling is not available. If accepted, the proposed sample is stored in the arrays otherwise the previous sample is stored at the same MCMC iteraion. 
 
 The variance of the proposal distribution typically decides how often proposals are accepted/rejected. A larger covariance or movement away from the previous sample would lead to a larger change in likelihood/posterior values. Since the sampler prefers movement towards high probability regions, a larger movement towards low probability regions would lead to likely rejection of the sample compared to smaller movement.
 
-The collected samples can then be used to compute statistical quantities and plot probability distributions. The plotting function used by the sampler in this code allows monitoring of posterior values and current fluorescence profile sample.
+The collected samples can then be used to compute statistical quantities and plot probability distributions. The plotting function used by the sampler in this code allows monitoring of posterior values and current fluorescence intensity sample.
 
-As mentioned before, sampler prefers movement towards higher probability regions of the posterior distribution. This means that if parameters are initialized in low probability regions of the posterior, which is typically the case, the posterior would appear to increase initially for many iterations (hundreds to thousands depending on the complexity of the model). This initial period is called burn-in. After burn-in, convergence is achieved where the posterior would typically fluctuate around some mean/average value. The convergence typically indicates that the sampler has reached the maximum of the posterior distribution (the most probability region), that is, sampler generates most samples from higher probability region. In other words, given a large collection of samples, the probability density in a region of parameter space is proportional to the number of samples collected from that region. 
+As mentioned before, sampler prefers movement towards higher probability regions of the posterior distribution. This means that if parameters are initialized in low probability regions of the posterior, which is typically the case, the posterior would appear to increase initially for many iterations (hundreds to thousands depending on the complexity of the model). This initial period is called burn-in. After burn-in, convergence is achieved where the posterior would typically fluctuate around some mean/average value. The convergence typically indicates that the sampler has reached the maximum of the posterior distribution (the most probable region), that is, sampler generates most samples from higher probability region. In other words, given a large collection of samples, the probability density in a region of parameter space is proportional to the number of samples collected from that region. 
  
 All the samples collected during burn-in are usually ignored when computing statistical properties and presenting the final posterior distribution. 
