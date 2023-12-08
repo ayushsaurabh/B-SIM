@@ -41,7 +41,7 @@ const averaging_frequency::Integer = 20
 
 
 # Parallelization Parameters
-const n_procs_per_dim::Integer = 4
+const n_procs_per_dim::Integer = 2
 
 # Plotting Options
 const plotting = true
