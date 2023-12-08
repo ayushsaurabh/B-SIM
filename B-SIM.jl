@@ -35,7 +35,7 @@ if plotting == true
 	println("Plotting is On.")
 	flush(stdout);
 
-	using Plots
+	using Plots, Plots.PlotMeasures
 else
 
 	println("Plotting is Off.")
@@ -46,47 +46,43 @@ using HDF5
 
 ###############################################################################
 # A brief description of the sampler:
+# The sampler here execute a Markov Chain Monte Carlo (MCMC) algorithm (Gibbs) 
+# where samples for fluorescence intensity at each pixel are generated 
+# sequentially from their corresponding conditional probability distributions 
+# (posterior). First, the sampler creates/initiates arrays to store all the 
+# samples and joint posterior probability values. Next, new samples are then 
+# iteratively proposed using proposal (normal) distributions for each pixel, to 
+# be accepted or rejected by the Metropolis-Hastings step if direct sampling is 
+# not available. If accepted, the proposed sample is stored in the arrays 
+# otherwise the previous sample is stored at the same MCMC iteraion.
 #
-# The sampler function below executes a Markov Chain Monte Carlo (MCMC)
-# algorithm (Gibbs) where samples for each parameter of interest are generated
-# sequentially from their corresponding probability distributions (posterior).
-# First, the sampler creates/initiates arrays to store all the samples,
-# posterior values, and acceptance rates for proposed samples. Next, new
-# samples are then iteratively proposed using proposal (normal) distributions
-# for each parameter, to be accepted or rejected by the Metropolis-Hastings
-# step. If accepted, the proposed sample is stored in the arrays otherwise the
-# previous sample is stored at the same MCMC iteration.
-#
-# The variance of the proposal distribution typically decides how often
-# proposals are accepted/rejected. A larger covariance or movement away from
-# the previous sample would lead to a larger change in likelihood/posterior
-# values. Since the sampler prefers movement towards high probability regions,
-# a larger movement towards low probability regions would lead to likely
+# The variance of the proposal distribution typically decides how often 
+# proposals are accepted/rejected. A larger covariance or movement away from 
+# the previous sample would lead to a larger change in likelihood/posterior 
+# values.  Since the sampler prefers movement towards high probability regions, 
+# a larger movement towards low probability regions would lead to likely 
 # rejection of the sample compared to smaller movement.
-#
-# The collected samples can then be used to compute statistical quantities and
-# plot probability distributions. The plotting function used by the sampler
-# in this code allows monitoring of posterior values, most probable model for
-# the molecule, and distributions over transition rates and FRET efficiencies.
-#
-# As mentioned before, sampler prefers movement towards higher probability
-# regions of the posterior distribution. This means that if parameters are
-# initialized in low probability regions of the posterior, which is typically
-# the case, the posterior would appear to increase initially for many
-# iterations (hundreds to thousands depending on the complexity of the model).
-# This initial period is called burn-in. After burn-in, convergence is achieved
-# where the posterior would typically fluctuate around some mean/average value.
-# The convergence typically indicates that the sampler has reached the maximum
-# of the posterior distribution (the most probability region), that is, sampler
-# generates most samples from higher probability region. In other words, given
-# a large collection of samples, the probability density in a region of
-# parameter space is proportional to the number of samples collected from that
-# region.
-#
-# All the samples collected during burn-in are usually ignored
-# when computing statistical properties and presenting the final posterior
-# distribution.
-#
+# 
+# The collected samples can then be used to compute statistical quantities and 
+# plot probability distributions. The plotting function used by the sampler in 
+# this code allows monitoring of posterior values and current fluorescence 
+# intensity sample.
+
+# As mentioned before, sampler prefers movement towards higher probability 
+# regions of the posterior distribution. This means that if parameters are 
+# initialized in low probability regions of the posterior, which is typically 
+# the case, the posterior would appear to increase initially for many iterations 
+# (hundreds to thousands depending on the complexity of the model). This initial 
+# period is called burn-in. After burn-in, convergence is achieved where the 
+# posterior would typically fluctuate around some mean/average value. The 
+# convergence typically indicates that the sampler has reached the maximum of 
+# the posterior distribution (the most probable region), that is, sampler 
+# generates most samples from higher probability region. In other words, given a 
+# large collection of samples, the probability density in a region of parameter 
+# space is proportional to the number of samples collected from that region.
+# 
+# All the samples collected during burn-in are usually ignored when computing 
+# statistical properties and presenting the final posterior distribution.
 ###############################################################################
 
 
@@ -823,38 +819,72 @@ if plotting == true
 						size=(2000, 2000),
 						legend=false,
 						title = "log-Posterior",
-						xlabel = "Iterations");
+						xlabel = "Iterations",
+						xtickfontsize=20,						
+						ytickfontsize=20,
+						titlefontsize=20,
+						xguidefontsize=20,
+						bottom_margin=10mm);
 		else
 			plot_a = plot(collect(1:draw),
 						mcmc_log_posterior[1:draw], 
 						size=(2000, 2000),
 						legend=false,
 						title = "log-Posterior",
-						xlabel = "Iterations");
+						xlabel = "Iterations",
+						xtickfontsize=20,						
+						ytickfontsize=20,
+						titlefontsize=20,
+						xguidefontsize=20,
+					   	bottom_margin=10mm);
 		end
 
 
 		plot_b = heatmap(gt[ghost_size+1:end-ghost_size,
 					ghost_size+1:end-ghost_size],
 					c=:grays, legend=false, size=(2000, 2000),
-					title = "Current SIM Sample");
+					title = "Current SIM Sample",
+					xtickfontsize=20,						
+					ytickfontsize=20,
+					titlefontsize=20
+					);
 
 		plot_c = heatmap(input_raw_images[1],
 					c=:grays, legend=false, size=(2000, 2000),
-				 	title = "A Raw Image");
+				 	title = "A Raw Image",
+					xticks=false,
+					xtickfontsize=20,						
+					ytickfontsize=20,
+					titlefontsize=20
+					);
 		plot_d = heatmap(shot_noise_images[1][
 					half_ghost_size+1:end-half_ghost_size,
 					half_ghost_size+1:end-half_ghost_size],
 					c=:grays, legend=false, size=(2000, 2000),
-					title = "Shot Noise Image");
+					title = "Shot Noise Image",
+					ticks=false,
+					xtickfontsize=20,						
+					ytickfontsize=20,
+					titlefontsize=20
+				);
 
 		plot_e = heatmap(ground_truth,
 					c=:grays, legend=false, size=(2000, 2000),
-					title = "Ground Truth");
+					title = "Ground Truth",
+					ticks=false,
+					xtickfontsize=20,						
+					ytickfontsize=20,
+					titlefontsize=20
+					);
 		plot_f = heatmap(mean_gt[ghost_size+1:end-ghost_size,
 					ghost_size+1:end-ghost_size],
 					c=:grays, legend=false, size=(2000, 2000),
-					title = "Mean SIM Image");
+					title = "Mean SIM Image",
+					yticks=false,
+					xtickfontsize=20,						
+					ytickfontsize=20,
+					titlefontsize=20
+					);
 
 		display(plot(plot_c, plot_d, plot_e, plot_a, plot_b, plot_f,
 						 		layout = (2, 3), size = (3000, 2000)))
