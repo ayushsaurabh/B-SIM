@@ -34,6 +34,7 @@ In Windows, this interactive environment can be started by clicking on the Julia
 If you already have Julia and do not want to alter your default environment, you can go to the directory where this software is, then 
 1. Run Julia then type `]` and `activate .`;
 2. Or run Julia in terminal via `julia --project`.
+   
 These two ways are equivalent. Both of them create a new Julia environment the first time you run it, or otherwise switch to this environment.
 
 ## Test Example
