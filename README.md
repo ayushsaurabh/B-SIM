@@ -20,7 +20,7 @@ Like python, Julia also has an interactive environment (commonly known as REPL) 
 ![Screenshot from 2023-11-08 14-36-41](https://github.com/ayushsaurabh/B-SIM/assets/87823118/05bdffb9-6857-4209-9d8d-97cedd3a3578)
 
 
-In Windows, this interactive environment can be started by clicking on the Julia icon on Desktop that is created upon installation or by going into the programs menu directly. On Linux or macOS machines, julia REPL can be accessed by simply typing julia in the terminal. We use this environment to install some essential julia packages that help simplify linear algebra and statistical calculations, and plotting. To add these packages via julia REPL, **first enter the julia package manager by executing "]" command in the REPL**. Then simply execute the following command to install all these packages at the same time. 
+In Windows, this interactive environment can be started by clicking on the Julia icon on Desktop that is created upon installation or by going into the programs menu directly. On Linux or macOS machines, julia REPL can be accessed by simply typing julia in the terminal. We use this environment to install some essential julia packages that help simplify linear algebra and statistical calculations, and plotting. To add these packages via julia REPL, **first enter the julia package manager by executing `]` command in the REPL**. Then simply execute the following command to install all these packages at the same time. 
 
 ```add Distributed, Random, SpecialFunctions, Distributions, LinearAlgebra, Statistics, Plots, HDF5, TiffImages, FixedPointNumbers, FFTW```
 
