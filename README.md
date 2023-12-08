@@ -8,7 +8,9 @@ https://biorxiv.org/cgi/content/short/2022.07.20.500887v1
 
 ## Julia Installation
 
-All the codes are written in Julia language for high performance/speed (similar to C and Fortran) and its open-source/free availability. Julia also allows easy parallelization of all the codes. To install julia, please download and install julia language installer from their official website (see below) for your operating system or use your package manager. The current version of the code has been successfully tested on linux (Ubuntu 22.04), macOS 12 (TEST), and Windows.
+**System Requirements: B-SIM is a parallelized code.  In addition to about twice the memory required to load SIM raw images, illumination patterns, and SIM image globally, B-SIM typically requests 300-500 MB of RAM to load Julia packages on each processor.**
+
+All the codes are written in Julia language for high performance/speed (similar to C and Fortran) and its open-source/free availability. Julia also allows easy parallelization of all the codes. To install julia, please download and install julia language installer from their official website (see below) for your operating system or use your package manager. The current version of the code has been successfully tested on linux (Ubuntu 22.04), macOS 12, and Windows.
 
 https://julialang.org/
 
@@ -75,7 +77,7 @@ Depending on whether plotting option is chosen to be ```true``` or ```false``` i
 ![Screenshot from 2023-11-08 14-27-24](https://github.com/ayushsaurabh/B-SIM/assets/87823118/8ecfc77e-ac1f-4be9-b8ef-5d4b7da5ce0f)
 
 
-Finally, as samples are collected, B-SIM saves intermediate samples and analysis data onto the hard drive in the HDF5 format with file names that look like "mcmc_output_...1000.h5". <!--- **Ayush: Make the next sentences more readable** The save frequency can be modified by changing a few inference parameters in the "input_parameters.jl" file: "averaging_starting_draw" which is set based on when the sampler converges for the **first time**; "start_averaging_at" indicates the first sample to be used for calculating mean in each annealing cycle; "averaging_increment" sets the frequency at which samples used for calculating averages are collected. Annealing is a technique that is used here to uncorrelate the chain of samples by smoothing and widening the posterior at intermediate iterations, allowing the sampler to easily move far away from the current sample. Based on these parameters, the samples are saved whenever the following conditions are satisfied: --->
+Finally, as samples are collected, B-SIM saves intermediate samples and analysis data onto the hard drive in the HDF5 format with file names that look like "mcmc_output_...1000.h5". **Ayush: Make the next sentences more readable** The save frequency can be modified by changing a few inference parameters in the "input_parameters.jl" file: "averaging_starting_draw" which is set based on when the sampler converges for the **first time**; "start_averaging_at" indicates the first sample to be used for calculating mean in each annealing cycle; "averaging_increment" sets the frequency at which samples used for calculating averages are collected. Annealing is a technique that is used here to uncorrelate the chain of samples by smoothing and widening the posterior at intermediate iterations, allowing the sampler to easily move far away from the current sample. Based on these parameters, the samples are saved whenever the following conditions are satisfied: 
 
 ```
 if (draw >= averaging_starting_draw) and
