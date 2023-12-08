@@ -27,22 +27,26 @@ const noise_maps_available = false
 # Inference Parameters
 const ghost_size::Integer = 24 # Always choose numbers divisible by 4
 const half_ghost_size::Integer = ghost_size/2
-const covariance_gt::Float64 = 0.5
+const covariance_gt::Float64 = 2.0
 const gamma_prior_scale::Float64 = 10.0
 const gamma_prior_shape::Float64 = 0.1
 
-const total_draws::Integer = 50000
-const averaging_starting_draw::Integer = 1
-const start_averaging_at::Integer = 200
-const averaging_increment::Integer = 20
-const annealing_increment::Integer = 1000
+const total_draws::Integer = 10000
+const initial_burn_in_period::Integer = 4000
+const annealing_frequency::Integer = 1000
 const annealing_time_constant::Float64 = 20.0
-const annealing_starting_temperature::Float64 = 20.0
+const annealing_starting_temperature::Float64 = 10.0
+const annealing_burn_in_period::Integer = 400
+const averaging_frequency::Integer = 20
 
 
 # Parallelization Parameters
-const n_procs_per_dim::Integer = 2
+const n_procs_per_dim::Integer = 4
 
 # Plotting Options
 const plotting = true
-const plotting_frequency = 1
+const plotting_frequency = 50
+const posterior_moving_window_size = 400
+
+
+

@@ -720,9 +720,9 @@ end
 function sample_gt(draw::Integer, gt::Matrix{Float64},
 			shot_noise_imgs::Vector{Matrix{Float64}})
 
-	if draw > averaging_starting_draw
+	if draw > initial_burn_in_period
 		temperature = 1.0 + (annealing_starting_temperature-1.0)*
-				exp(-((draw-1) % annealing_increment)/annealing_time_constant)
+				exp(-((draw-1) % annealing_frequency)/annealing_time_constant)
 	else
 		temperature = 1.0
 	end
@@ -817,9 +817,23 @@ end
 if plotting == true
 	function plot_results(draw, mcmc_log_posterior, gt, shot_noise_images, mean_gt)
 
-		plot_a = plot(mcmc_log_posterior[1:draw], size=(2000, 2000),
-					legend=false,
-					title = "Log-Posterior");
+		if draw > posterior_moving_window_size
+			plot_a = plot(collect(draw-posterior_moving_window_size:draw), 
+						mcmc_log_posterior[draw-posterior_moving_window_size:draw], 
+						size=(2000, 2000),
+						legend=false,
+						title = "log-Posterior",
+						xlabel = "Iterations");
+		else
+			plot_a = plot(collect(1:draw),
+						mcmc_log_posterior[1:draw], 
+						size=(2000, 2000),
+						legend=false,
+						title = "log-Posterior",
+						xlabel = "Iterations");
+		end
+
+
 		plot_b = heatmap(gt[ghost_size+1:end-ghost_size,
 					ghost_size+1:end-ghost_size],
 					c=:grays, legend=false, size=(2000, 2000),
@@ -899,9 +913,9 @@ function sampler_SIM(draws::Integer, initial_inferred_density::Matrix{Float64},
 			MAP_gt = copy(gt)
 		end
 
-		if (draw >= averaging_starting_draw) &&
-   				(draw % annealing_increment >= start_averaging_at) &&
-					(draw % averaging_increment == 0)
+		if (draw >= initial_burn_in_period) &&
+   				(draw % annealing_frequency >= annealing_burn_in_period) &&
+					(draw % averaging_frequency == 0)
 
  			averaging_counter += 1.0
  			sum_gt += copy(gt)
@@ -959,3 +973,6 @@ flush(stdout);
 
 inferred_density, inferred_shot_noise_images =
 		sampler_SIM(total_draws, inferred_density, inferred_shot_noise_images)
+
+# Kill all the processes
+rmprocs(workers())
