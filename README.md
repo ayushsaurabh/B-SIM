@@ -33,7 +33,8 @@ In Windows, this interactive environment can be started by clicking on the Julia
 
 Complex programs like B-SIM require scripts for better organization instead of typing functions into the REPL for every run. B-SIM is currently organized into two scripts. First script "B-SIM.jl" contains all the functions performing SIM reconstruction and the second script "input_parameters.jl" defines all the input parameters needed to perform reconstruction (see the image below).
 
-![Screenshot from 2023-11-08 16-01-18](https://github.com/ayushsaurabh/B-SIM/assets/87823118/dcc7a017-3a08-4a68-bc3d-a5797e3b332d)
+
+![Screenshot from 2023-12-08 16-09-53](https://github.com/ayushsaurabh/B-SIM/assets/87823118/31d76292-619f-4f97-a11e-b25ed25f8158)
 
 
 
