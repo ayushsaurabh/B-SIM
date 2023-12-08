@@ -29,6 +29,13 @@ In Windows, this interactive environment can be started by clicking on the Julia
 
 **To get out of the package manager, simply hit the backspace key.**
 
+### Environment Creation
+**This is users who already have Julia installed.**
+If you already have Julia and do not want to alter your default environment, you can go to the directory where this software is, then 
+1. Run Julia then type `]` and `activate .`;
+2. Or run Julia in terminal via `julia --project`.
+These two ways are equivalent. Both of them create a new Julia environment the first time you run it, or otherwise switch to this environment.
+
 ## Test Example
 
 Complex programs like B-SIM require scripts for better organization instead of typing functions into the REPL for every run. B-SIM is currently organized into two scripts. First script "B-SIM.jl" contains all the functions performing SIM reconstruction and the second script "input_parameters.jl" defines all the input parameters needed to perform reconstruction (see the image below).
