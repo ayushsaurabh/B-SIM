@@ -2,13 +2,13 @@
 A Structured Illumination Microscopy Reconstruction Code with Spatial-Domain Noise Propagation
 
 
-B-SIM is a structured illumination micrsocopy reconstruction algorithm that accurately incorporates all sources of noise in the data and provides stricly positive solutions without arbitrary smoothness constraints. It implements Markov chain Monte Carlo (MCMC) algorithms to learn probability distributions over the main function of interest: fluorescence profile (product of fluorophore density and quantum yield given illumination). These tools can be used in a simple plug and play manner. Check the following paper to see details of all the mathematics involved in the development of B-SIM:
+B-SIM is a structured illumination micrsocopy reconstruction algorithm that accurately incorporates all sources of noise in the data and provides stricly positive solutions without arbitrary smoothness constraints. It implements Markov chain Monte Carlo (MCMC) algorithms to learn probability distributions over the main function of interest: fluorescence intensity map (product of fluorophore density and quantum yield given illumination). These tools can be used in a simple plug and play manner. Check the following paper to see details of all the mathematics involved in the development of B-SIM:
 
 https://biorxiv.org/cgi/content/short/2022.07.20.500887v1
 
 ## Julia Installation
 
-**System Requirements: B-SIM is a parallelized code.  In addition to about twice the memory required to load SIM raw images, illumination patterns, and SIM image globally, B-SIM typically requests 300-500 MB of RAM to load Julia packages on each processor.**
+**System Requirements: B-SIM is a parallelized code and has been fully tested on modern desktops and laptops with at least 4 processor cores.  In addition to about twice the memory required to load SIM raw images, illumination patterns, and SIM image globally, B-SIM typically requests 300-500 MB of RAM to load Julia packages on each processor core.**
 
 All the codes are written in Julia language for high performance/speed (similar to C and Fortran) and its open-source/free availability. Julia also allows easy parallelization of all the codes. To install julia, please download and install julia language installer from their official website (see below) for your operating system or use your package manager. The current version of the code has been successfully tested on linux (Ubuntu 22.04), macOS 12, and Windows.
 
@@ -41,7 +41,9 @@ These parameters define the shape of the microscope point spread function (numer
 
 Using the settings in the image above, we here provide a simple plug and play example to test the functioning of B-SIM on a personal computer. For this example, we provide three tiff files "raw_images_line_pairs_84x84_500nm_highSNR.tif", "illumination_patterns_line_pairs_168x168_500nm_highSNR.tif", and "ground_truth_line_pairs_168x168_500nm_highSNR.tif" containing 9 sinuosidal patterns and corresponding raw images as well as the ground truth. 
 
-Currently, B-SIM only accepts square images but can be easily modified to accept rectangular images. With the default settings in the image above, the code divides the image into 16 sub-images of equal size (a 4x4 grid). The sub-images are then sent to each processor and inference is performed on the fluorescence profile. The number of processors can be changed if running on a more powerful computer by changing "n_procs_per_dim" parameter.
+Currently, B-SIM only accepts square images but can be easily modified to accept rectangular images. Furthermore, the current version assumes a Gaussian point spread function but can be modified easily to incorporate any other shape.
+
+With the settings in the image above, the code divides the image into 16 sub-images of equal size (a 4x4 grid). The sub-images are then sent to each processor and inference is performed on the fluorescence intensity map. The number of processors can be changed if running on a more powerful computer by changing "n_procs_per_dim" parameter, which is set to 2 by default.
 
 To run this example, we suggest putting B-SIM scripts and the input tif files in the same folder/directory. Next, if running on a Windows machine, first confirm the current folder that julia is being run from by executing the following command in the REPL:
 
@@ -49,7 +51,7 @@ To run this example, we suggest putting B-SIM scripts and the input tif files in
 
 **Please note here that Windows machines use backslashes "\\" to describe folder paths unlike Linux and macOS where forward slashes "/" are used.** Appropriate modifications therefore must be made to the folder paths. Now, if the output of the command above is different from the path containing the scripts and tiff files, the current path can be changed by executing the following command:
 
-```cd("/home/singularity/B-SIM/")```
+```cd("/home/username/B-SIM/")```
 
 B-SIM code can now be executed by simply importing the "B-SIM.jl" in the REPL as shown in the picture below
 
