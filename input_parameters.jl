@@ -45,7 +45,7 @@ const n_procs_per_dim::Integer = 2
 
 # Plotting Options
 const plotting = true
-const plotting_frequency = 50
+const plotting_frequency = 10
 const posterior_moving_window_size = 400
 
 
