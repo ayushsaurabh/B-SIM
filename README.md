@@ -102,9 +102,8 @@ if (draw >= initial_burn_in_period) &&
 where % indicates remainder upon division. For instance, using the default settings in the "input_parameters.jl" file shown above, the samples will be saved at iterations:
 
 ``` 
-4420, 4440, 4460, ..., 4980,
-5420, 5440, 5460, ..., 5980,
-6420, 6440, 6460, ..., 6980, ...
+10020, 10040, 10060, ..., 10080,...
+
 ```
 
 
