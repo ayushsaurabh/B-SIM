@@ -26,8 +26,8 @@ const noise::Float64 = 2.0
 const noise_maps_available = true
 
 # Inference Parameters
-const ghost_size::Integer = 24 # Always choose numbers divisible by 4
-const half_ghost_size::Integer = ghost_size/2
+const padding_size::Integer = 24 # Always choose numbers divisible by 4
+const half_padding_size::Integer = padding_size/2
 const covariance_fluorescence_intensity::Float64 = 0.5
 const gamma_prior_scale::Float64 = 10.0
 const gamma_prior_shape::Float64 = 0.1
