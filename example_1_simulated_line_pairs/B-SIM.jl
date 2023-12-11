@@ -171,53 +171,53 @@ flush(stdout);
 
 @everywhere const img_size = size($input_raw_images[1])[1]
 
-function get_camera_calibration_data_with_ghosts(
+function get_camera_calibration_data_with_padding(
 				input_map::Matrix{Float64}, average_val)
 	img::Matrix{Float64} = average_val .* 
-					ones(img_size+ghost_size, img_size+ghost_size)
-	img[half_ghost_size+1:end-half_ghost_size,
-						half_ghost_size+1:end-half_ghost_size] =
+					ones(img_size+padding_size, img_size+padding_size)
+	img[half_padding_size+1:end-half_padding_size,
+						half_padding_size+1:end-half_padding_size] =
 										input_map[1:end, 1:end]
 	return img
 end
 
-println("Adding ghosts to calibration data...")
+println("Adding padding to calibration data...")
 flush(stdout);
 
-const gain_map_with_ghosts = 
-			get_camera_calibration_data_with_ghosts(gain_map, gain)
-println("Size of gain map With ghosts = ", size(gain_map_with_ghosts))
+const gain_map_with_padding = 
+			get_camera_calibration_data_with_padding(gain_map, gain)
+println("Size of gain map With padding = ", size(gain_map_with_padding))
 
-const offset_map_with_ghosts = 
-			get_camera_calibration_data_with_ghosts(offset_map, offset)
-println("Size of offset map With ghosts = ", size(offset_map_with_ghosts))
+const offset_map_with_padding = 
+			get_camera_calibration_data_with_padding(offset_map, offset)
+println("Size of offset map With padding = ", size(offset_map_with_padding))
 
-const error_map_with_ghosts = 
-			get_camera_calibration_data_with_ghosts(error_map, noise)
-println("Size of error map With ghosts = ", size(error_map_with_ghosts))
+const error_map_with_padding = 
+			get_camera_calibration_data_with_padding(error_map, noise)
+println("Size of error map With padding = ", size(error_map_with_padding))
 
 println("Done.")
 flush(stdout);
 
 
 
-function get_raw_images_with_ghosts(input_raw_imgs::Vector{Matrix{Float64}})
+function get_raw_images_with_padding(input_raw_imgs::Vector{Matrix{Float64}})
 	imgs = Matrix{Float64}[]
 	for pattern in 1:9
-		img = zeros(img_size+ghost_size, img_size+ghost_size)
-		img[half_ghost_size+1:end-half_ghost_size,
-						half_ghost_size+1:end-half_ghost_size] =
+		img = zeros(img_size+padding_size, img_size+padding_size)
+		img[half_padding_size+1:end-half_padding_size,
+						half_padding_size+1:end-half_padding_size] =
 										input_raw_imgs[pattern][1:end, 1:end]
 		imgs = vcat(imgs, [img])
 	end
 	return imgs
 end
 
-println("Adding ghosts to raw images...")
+println("Adding padding to raw images...")
 flush(stdout);
-const raw_images_with_ghosts = get_raw_images_with_ghosts(input_raw_images)
+const raw_images_with_padding = get_raw_images_with_padding(input_raw_images)
 println("Done.")
-println("Size of Raw Images With Ghosts = ", size(raw_images_with_ghosts[1]))
+println("Size of Raw Images With Ghosts = ", size(raw_images_with_padding[1]))
 flush(stdout);
 
 function get_illumination_patterns()
@@ -236,29 +236,29 @@ end
 
 println("Importing illumination patterns...")
 flush(stdout);
-const illumination_patterns_without_ghosts = get_illumination_patterns()
+const illumination_patterns_without_padding = get_illumination_patterns()
 println("Done.")
 println("Size of Illumination Patterns = ",
-				size(illumination_patterns_without_ghosts[1]))
+				size(illumination_patterns_without_padding[1]))
 flush(stdout);
 
-function get_illumination_patterns_with_ghosts(
+function get_illumination_patterns_with_padding(
 					input_illum_patterns::Vector{Matrix{Float64}})
 	illum_patterns = Matrix{Float64}[]
 	for pattern in 1:9
-		illum_pattern = zeros(2*(img_size+ghost_size), 2*(img_size+ghost_size))
-		illum_pattern[ghost_size+1:end-ghost_size,
-						ghost_size+1:end-ghost_size] =
+		illum_pattern = zeros(2*(img_size+padding_size), 2*(img_size+padding_size))
+		illum_pattern[padding_size+1:end-padding_size,
+						padding_size+1:end-padding_size] =
 								input_illum_patterns[pattern][1:end, 1:end]
 		illum_patterns = vcat(illum_patterns, [illum_pattern])
 	end
 	return illum_patterns
 end
 
-println("Adding ghosts to illumination patterns...")
+println("Adding padding to illumination patterns...")
 flush(stdout);
-const illumination_patterns = get_illumination_patterns_with_ghosts(
-								illumination_patterns_without_ghosts)
+const illumination_patterns = get_illumination_patterns_with_padding(
+								illumination_patterns_without_padding)
 println("Done.")
 println("Size of Illumination Patterns With Ghosts = ",
 				size(illumination_patterns[1]))
@@ -270,16 +270,16 @@ flush(stdout);
 	const j_procs::Integer = (myid()-2 - i_procs)/n_procs_per_dim
 
 	const im_raw::Integer = i_procs*img_size/n_procs_per_dim + 1
-	const ip_raw::Integer = ghost_size + (i_procs+1)*img_size/n_procs_per_dim
+	const ip_raw::Integer = padding_size + (i_procs+1)*img_size/n_procs_per_dim
 	const jm_raw::Integer = j_procs*img_size/n_procs_per_dim + 1
-	const jp_raw::Integer = ghost_size + (j_procs+1)*img_size/n_procs_per_dim
-	const sub_size_raw::Integer = img_size/n_procs_per_dim+ghost_size
+	const jp_raw::Integer = padding_size + (j_procs+1)*img_size/n_procs_per_dim
+	const sub_size_raw::Integer = img_size/n_procs_per_dim+padding_size
 
 	const im_sim::Integer = i_procs*2*img_size/n_procs_per_dim + 1
-	const ip_sim::Integer = 2*ghost_size+ (i_procs+1)*2*img_size/n_procs_per_dim
+	const ip_sim::Integer = 2*padding_size+ (i_procs+1)*2*img_size/n_procs_per_dim
 	const jm_sim::Integer = j_procs*2*img_size/n_procs_per_dim + 1
-	const jp_sim::Integer = 2*ghost_size+ (j_procs+1)*2*img_size/n_procs_per_dim
-	const sub_size_sim::Integer = 2*img_size/n_procs_per_dim+2*ghost_size
+	const jp_sim::Integer = 2*padding_size+ (j_procs+1)*2*img_size/n_procs_per_dim
+	const sub_size_sim::Integer = 2*img_size/n_procs_per_dim+2*padding_size
 end
 
 @everywhere workers() function get_sub_images(imgs::Vector{Matrix{Float64}},
@@ -294,7 +294,7 @@ end
 println("Assigning sections of raw images to each processor...")
 flush(stdout);
 @everywhere workers() const sub_raw_images = 
-				get_sub_images($raw_images_with_ghosts,
+				get_sub_images($raw_images_with_padding,
 								im_raw, ip_raw, jm_raw, jp_raw)
 println("Done.")
 flush(stdout);
@@ -309,13 +309,13 @@ end
 println("Assigning sections of calibration maps to each processor...")
 flush(stdout);
 @everywhere workers() const sub_gain_map = 
-						get_sub_calibration_map($gain_map_with_ghosts,
+						get_sub_calibration_map($gain_map_with_padding,
 								im_raw, ip_raw, jm_raw, jp_raw)
 @everywhere workers() const sub_offset_map = 
-						get_sub_calibration_map($offset_map_with_ghosts,
+						get_sub_calibration_map($offset_map_with_padding,
 								im_raw, ip_raw, jm_raw, jp_raw)
 @everywhere workers() const sub_error_map = 
-						get_sub_calibration_map($error_map_with_ghosts,
+						get_sub_calibration_map($error_map_with_padding,
 								im_raw, ip_raw, jm_raw, jp_raw)
 
 println("Done.")
@@ -329,8 +329,8 @@ flush(stdout);
 println("Done.")
 flush(stdout);
 
-const grid_physical_1D = dx .* collect(-(img_size + ghost_size):
-								(img_size + ghost_size - 1)) # in micrometers
+const grid_physical_1D = dx .* collect(-(img_size + padding_size):
+								(img_size + padding_size - 1)) # in micrometers
 
 @everywhere function incoherent_PSF(x_c::Vector{Float64}, x_e::Vector{Float64})
 	return exp(-norm(x_c-x_e)^2/(2.0*sigma^2)) /
@@ -341,9 +341,9 @@ println("Done.")
 flush(stdout);
 
 function FFT_incoherent_PSF()
-	psf_on_grid = zeros(2*img_size+2*ghost_size, 2*img_size+2*ghost_size)
-	for i in 1:2*img_size + 2*ghost_size
-		for j in 1:2*img_size + 2*ghost_size
+	psf_on_grid = zeros(2*img_size+2*padding_size, 2*img_size+2*padding_size)
+	for i in 1:2*img_size + 2*padding_size
+		for j in 1:2*img_size + 2*padding_size
 			x_e::Vector{Float64} = [grid_physical_1D[i], grid_physical_1D[j]]
 			psf_on_grid[i, j] =  incoherent_PSF([0.0, 0.0], x_e)
 		end
@@ -408,12 +408,12 @@ end
 
 ################Inference Part#######################################
 @everywhere workers() const grid_physical_1D_ij =
-			dx .* collect(-(ghost_size+1):ghost_size) # in micrometers
+			dx .* collect(-(padding_size+1):padding_size) # in micrometers
 
 @everywhere workers() function FFT_incoherent_PSF_ij()
-	psf_on_grid = zeros(2*ghost_size+2, 2*ghost_size+2)
-	for i in 1:2*ghost_size+2
-		for j in 1:2*ghost_size+2
+	psf_on_grid = zeros(2*padding_size+2, 2*padding_size+2)
+	for i in 1:2*padding_size+2
+		for j in 1:2*padding_size+2
 			x_e::Vector{Float64} = [grid_physical_1D_ij[i],
 											grid_physical_1D_ij[j]]
 			psf_on_grid[i, j] =  incoherent_PSF([0.0, 0.0], x_e)
@@ -434,16 +434,16 @@ flush(stdout);
 						fluorescence_intensity::Matrix{Float64},
 						i::Integer, j::Integer)
 
-  	i_minus::Integer = i-ghost_size
- 	i_plus::Integer = i+ghost_size+1
- 	j_minus::Integer = j-ghost_size
- 	j_plus::Integer = j+ghost_size+1
+  	i_minus::Integer = i-padding_size
+ 	i_plus::Integer = i+padding_size+1
+ 	j_minus::Integer = j-padding_size
+ 	j_plus::Integer = j+padding_size+1
 
-	im::Integer = half_ghost_size + 1
-	ip::Integer = ghost_size + 2 + half_ghost_size
+	im::Integer = half_padding_size + 1
+	ip::Integer = padding_size + 2 + half_padding_size
 
-	jm::Integer = half_ghost_size + 1
-	jp::Integer = ghost_size + 2 + half_ghost_size
+	jm::Integer = half_padding_size + 1
+	jp::Integer = padding_size + 2 + half_padding_size
 
 
 
@@ -481,10 +481,10 @@ end
 @everywhere workers() function get_shot_noise_images_ij(ii::Integer, jj::Integer,
 								shot_noise_images::Vector{Matrix{Float64}})
 
-	i_minus::Integer = ii - half_ghost_size/2
-	i_plus::Integer = ii + half_ghost_size/2
-	j_minus::Integer = jj - half_ghost_size/2
-	j_plus::Integer = jj + half_ghost_size/2
+	i_minus::Integer = ii - half_padding_size/2
+	i_plus::Integer = ii + half_padding_size/2
+	j_minus::Integer = jj - half_padding_size/2
+	j_plus::Integer = jj + half_padding_size/2
 
 	shot_noise_imgs_ij = Matrix{Float64}[]
 	for pattern in 1:9
@@ -502,36 +502,36 @@ end
 							shot_noise_imgs_ij::Vector{Matrix{Float64}})
 
 	i_minus::Integer = 1
-	i_plus::Integer = half_ghost_size+1
+	i_plus::Integer = half_padding_size+1
 
-	if (i_procs== 0) && (0 < ii - half_ghost_size <=
-						 					Integer(half_ghost_size/2))
+	if (i_procs== 0) && (0 < ii - half_padding_size <=
+						 					Integer(half_padding_size/2))
 
-		i_minus += (half_ghost_size/2 - (ii - half_ghost_size - 1))
+		i_minus += (half_padding_size/2 - (ii - half_padding_size - 1))
 
 	end
 	if (i_procs==n_procs_per_dim-1) &&
-			(0 <= (sub_size_raw - half_ghost_size) - ii <
-			 								Integer(half_ghost_size/2))
+			(0 <= (sub_size_raw - half_padding_size) - ii <
+			 								Integer(half_padding_size/2))
 
-		i_plus -= (half_ghost_size/2 + ii - (sub_size_raw - half_ghost_size))
+		i_plus -= (half_padding_size/2 + ii - (sub_size_raw - half_padding_size))
 
 	end
 
 	j_minus::Integer = 1
-	j_plus::Integer = half_ghost_size+1
+	j_plus::Integer = half_padding_size+1
 
-	if (j_procs== 0) && (0 < jj - half_ghost_size <=
-						 					Integer(half_ghost_size/2))
+	if (j_procs== 0) && (0 < jj - half_padding_size <=
+						 					Integer(half_padding_size/2))
 
-		j_minus += (half_ghost_size/2 - (jj - half_ghost_size - 1))
+		j_minus += (half_padding_size/2 - (jj - half_padding_size - 1))
 
 	end
 	if (j_procs==n_procs_per_dim-1) &&
-			(0 <= (sub_size_raw - half_ghost_size) - jj <
-			 								Integer(half_ghost_size/2))
+			(0 <= (sub_size_raw - half_padding_size) - jj <
+			 								Integer(half_padding_size/2))
 
-		j_plus -= (half_ghost_size/2 + jj - (sub_size_raw - half_ghost_size))
+		j_plus -= (half_padding_size/2 + jj - (sub_size_raw - half_padding_size))
 
 	end
 
@@ -576,8 +576,8 @@ end
 	local log_backward_proposal_probability::Float64
 
 
-	for i in collect(ghost_size+1:2:sub_size_sim-ghost_size)
-		for j in collect(ghost_size+1:2:sub_size_sim-ghost_size)
+	for i in collect(padding_size+1:2:sub_size_sim-padding_size)
+		for j in collect(padding_size+1:2:sub_size_sim-padding_size)
 
  			ii = ceil(i/2)
  			jj = ceil(j/2)
@@ -648,8 +648,8 @@ end
 				# Choose the central pixel in the mean images
 				# for expected photon count
 				expected_photon_count = mean_imgs_ij[pattern][
-								Integer(half_ghost_size/2+1),
-								Integer(half_ghost_size/2+1)]
+								Integer(half_padding_size/2+1),
+								Integer(half_padding_size/2+1)]
 
   				old_log_likelihood = logpdf(Normal(sub_gain_map[ii, jj]*
                            		shot_noise_images[pattern][ii, jj] +
@@ -706,17 +706,17 @@ function get_log_likelihood(fluorescence_intensity::Matrix{Float64},
 	log_likelihood::Float64 = 0.0
 
 	mean_images::Vector{Matrix{Float64}} = get_mean_images(fluorescence_intensity)
-	val_range = collect(half_ghost_size+1:1:half_ghost_size+img_size)
+	val_range = collect(half_padding_size+1:1:half_padding_size+img_size)
 	for pattern in 1:9
 		log_likelihood += sum(logpdf.(Poisson.(
 				mean_images[pattern][val_range, val_range]),
 				shot_noise_images[pattern][ val_range, val_range ]))
 		log_likelihood += sum(logpdf.(Normal.(
-                (gain_map_with_ghosts[val_range, val_range] .*
+                (gain_map_with_padding[val_range, val_range] .*
 				shot_noise_images[pattern][ val_range, val_range]) .+
-					offset_map_with_ghosts[val_range, val_range],
-                    error_map_with_ghosts[val_range, val_range]),
-					raw_images_with_ghosts[pattern][val_range, val_range]))
+					offset_map_with_padding[val_range, val_range],
+                    error_map_with_padding[val_range, val_range]),
+					raw_images_with_padding[pattern][val_range, val_range]))
 	end
 
 	return log_likelihood
@@ -729,8 +729,8 @@ function compute_full_log_posterior(fluorescence_intensity::Matrix{Float64},
 													shot_noise_images)
 	log_prior::Float64 = sum(logpdf.(Gamma(gamma_prior_shape, 
 											gamma_prior_scale),
-							(fluorescence_intensity[ghost_size+1:end-ghost_size,
-								ghost_size+1:end-ghost_size].+eps(1.0))))
+							(fluorescence_intensity[padding_size+1:end-padding_size,
+								padding_size+1:end-padding_size].+eps(1.0))))
 	log_posterior::Float64 = log_likelihood + log_prior
 
 	@show log_likelihood, log_prior, log_posterior
@@ -778,27 +778,27 @@ function sample_fluorescence_intensity(draw::Integer,
  	for i in 0:n_procs_per_dim-1
  		for j in 0:n_procs_per_dim-1
 
- 			im = ghost_size+i*2*img_size/n_procs_per_dim + 1
- 			ip = ghost_size + (i+1)*2*img_size/n_procs_per_dim
- 			jm = ghost_size+j*2*img_size/n_procs_per_dim + 1
- 			jp = ghost_size + (j+1)*2*img_size/n_procs_per_dim
+ 			im = padding_size+i*2*img_size/n_procs_per_dim + 1
+ 			ip = padding_size + (i+1)*2*img_size/n_procs_per_dim
+ 			jm = padding_size+j*2*img_size/n_procs_per_dim + 1
+ 			jp = padding_size + (j+1)*2*img_size/n_procs_per_dim
 
  			fluorescence_intensity[im:ip, jm:jp] = 
 				@fetchfrom (j*n_procs_per_dim+i+2) sub_fluorescence_intensity[
- 							ghost_size+1:end-ghost_size,
- 							ghost_size+1:end-ghost_size]
+ 							padding_size+1:end-padding_size,
+ 							padding_size+1:end-padding_size]
 
- 			im = half_ghost_size + i*img_size/n_procs_per_dim + 1
- 			ip = half_ghost_size + (i+1)*img_size/n_procs_per_dim
- 			jm = half_ghost_size + j*img_size/n_procs_per_dim + 1
- 			jp = half_ghost_size + (j+1)*img_size/n_procs_per_dim
+ 			im = half_padding_size + i*img_size/n_procs_per_dim + 1
+ 			ip = half_padding_size + (i+1)*img_size/n_procs_per_dim
+ 			jm = half_padding_size + j*img_size/n_procs_per_dim + 1
+ 			jp = half_padding_size + (j+1)*img_size/n_procs_per_dim
 
  			sub_imgs =@fetchfrom (j*n_procs_per_dim+i+2) sub_shot_noise_imgs
  			for pattern in 1:9
  				shot_noise_imgs[pattern][im:ip, jm:jp] =
  						 sub_imgs[pattern][
- 							half_ghost_size+1:end-half_ghost_size,
- 							half_ghost_size+1:end-half_ghost_size]
+ 							half_padding_size+1:end-half_padding_size,
+ 							half_padding_size+1:end-half_padding_size]
  			end
  		end
  	end
@@ -874,8 +874,8 @@ if plotting == true
 		end
 
 
-		plot_b = heatmap(fluorescence_intensity[ghost_size+1:end-ghost_size,
-					ghost_size+1:end-ghost_size],
+		plot_b = heatmap(fluorescence_intensity[padding_size+1:end-padding_size,
+					padding_size+1:end-padding_size],
 					c=:grays, legend=false, size=(2000, 2000),
 					title = "Current SIM Sample",
 					xtickfontsize=20,						
@@ -894,8 +894,8 @@ if plotting == true
 					yflip=true
 					);
 		plot_d = heatmap(shot_noise_images[1][
-					half_ghost_size+1:end-half_ghost_size,
-					half_ghost_size+1:end-half_ghost_size],
+					half_padding_size+1:end-half_padding_size,
+					half_padding_size+1:end-half_padding_size],
 					c=:grays, legend=false, size=(2000, 2000),
 					title = "Shot Noise Image",
 					ticks=false,
@@ -927,8 +927,8 @@ if plotting == true
 					);
 
 		end
-		plot_f = heatmap(mean_fluorescence_intensity[ghost_size+1:end-ghost_size,
-					ghost_size+1:end-ghost_size],
+		plot_f = heatmap(mean_fluorescence_intensity[padding_size+1:end-padding_size,
+					padding_size+1:end-padding_size],
 					c=:grays, legend=false, size=(2000, 2000),
 					title = "Mean SIM Image",
 					yticks=false,
@@ -957,15 +957,15 @@ function sampler_SIM(draws::Integer,
 	MAP_index::Integer = 1
    	MAP_fluorescence_intensity::Matrix{Float64} = deepcopy(fluorescence_intensity)
    	sum_fluorescence_intensity::Matrix{Float64} =
- 				zeros(2*img_size+2*ghost_size, 2*img_size+2*ghost_size)
+ 				zeros(2*img_size+2*padding_size, 2*img_size+2*padding_size)
    	mean_fluorescence_intensity::Matrix{Float64} =
- 				zeros(2*img_size+2*ghost_size, 2*img_size+2*ghost_size)
+ 				zeros(2*img_size+2*padding_size, 2*img_size+2*padding_size)
    	sum_squared_fluorescence_intensity::Matrix{Float64} =
- 				zeros(2*img_size+2*ghost_size, 2*img_size+2*ghost_size)
+ 				zeros(2*img_size+2*padding_size, 2*img_size+2*padding_size)
    	mean_squared_fluorescence_intensity::Matrix{Float64} =
- 				zeros(2*img_size+2*ghost_size, 2*img_size+2*ghost_size)
+ 				zeros(2*img_size+2*padding_size, 2*img_size+2*padding_size)
    	variance_fluorescence_intensity::Matrix{Float64} =
- 				zeros(2*img_size+2*ghost_size, 2*img_size+2*ghost_size)
+ 				zeros(2*img_size+2*padding_size, 2*img_size+2*padding_size)
 
 
 
@@ -1050,14 +1050,14 @@ println("Initializing SIM Reconstruction...")
 flush(stdout);
 
 # Initialize inferred images
-inferred_fluorescence_intensity = zeros(2*img_size+2*ghost_size, 2*img_size+2*ghost_size)
-inferred_fluorescence_intensity[ghost_size+1:end-ghost_size,
-			ghost_size+1:end-ghost_size]=rand(2*img_size, 2*img_size)
-inferred_shot_noise_images = deepcopy(raw_images_with_ghosts)
+inferred_fluorescence_intensity = zeros(2*img_size+2*padding_size, 2*img_size+2*padding_size)
+inferred_fluorescence_intensity[padding_size+1:end-padding_size,
+			padding_size+1:end-padding_size]=rand(2*img_size, 2*img_size)
+inferred_shot_noise_images = deepcopy(raw_images_with_padding)
 
 for pattern in 1:9
-		inferred_shot_noise_images[pattern][half_ghost_size+1:end-half_ghost_size,
-											half_ghost_size+1:end-half_ghost_size] =
+		inferred_shot_noise_images[pattern][half_padding_size+1:end-half_padding_size,
+											half_padding_size+1:end-half_padding_size] =
 			round.(abs.((input_raw_images[pattern] .- offset) ./ gain))
 end
 
