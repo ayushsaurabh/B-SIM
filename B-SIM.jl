@@ -89,19 +89,21 @@ using HDF5
 
 @everywhere workers() include("input_parameters.jl")
 
-function get_ground_truth()
-	file_name = string(working_directory,
-						"ground_truth_", illumination_file_name_suffix,".tif")
-	ground_truth = TiffImages.load(file_name)
-	ground_truth = Float64.(ground_truth)
-	return ground_truth
-end
+if ground_truth_available == true
+	function get_ground_truth()
+		file_name = string(working_directory,
+					"ground_truth_", illumination_file_name_suffix,".tif")
+		ground_truth = TiffImages.load(file_name)
+		ground_truth = Float64.(ground_truth)
+		return ground_truth
+	end
 
-println("Importing ground truth...")
-flush(stdout);
-const ground_truth = get_ground_truth()
-println("Done.")
-flush(stdout);
+	println("Importing ground truth...")
+	flush(stdout);
+	const ground_truth = get_ground_truth()
+	println("Done.")
+	flush(stdout);
+end
 
 
 function get_camera_calibration_data()
@@ -122,6 +124,7 @@ function get_camera_calibration_data()
 							"variance_map.tif")
 		variance_map = TiffImages.load(file_name)
 		variance_map = Float64.(variance_map)
+		error_map = sqrt.(variance_map)
 
 		file_name = string(working_directory,
 							"gain_map.tif")
@@ -168,8 +171,10 @@ flush(stdout);
 
 @everywhere const img_size = size($input_raw_images[1])[1]
 
-function get_camera_calibration_data_with_ghosts(input_map::Matrix{Float64}, average_val)
-	img::Matrix{Float64} = average_val .* ones(img_size+ghost_size, img_size+ghost_size)
+function get_camera_calibration_data_with_ghosts(
+				input_map::Matrix{Float64}, average_val)
+	img::Matrix{Float64} = average_val .* 
+					ones(img_size+ghost_size, img_size+ghost_size)
 	img[half_ghost_size+1:end-half_ghost_size,
 						half_ghost_size+1:end-half_ghost_size] =
 										input_map[1:end, 1:end]
@@ -179,13 +184,16 @@ end
 println("Adding ghosts to calibration data...")
 flush(stdout);
 
-const gain_map_with_ghosts = get_camera_calibration_data_with_ghosts(gain_map, gain)
+const gain_map_with_ghosts = 
+			get_camera_calibration_data_with_ghosts(gain_map, gain)
 println("Size of gain map With ghosts = ", size(gain_map_with_ghosts))
 
-const offset_map_with_ghosts = get_camera_calibration_data_with_ghosts(offset_map, offset)
+const offset_map_with_ghosts = 
+			get_camera_calibration_data_with_ghosts(offset_map, offset)
 println("Size of offset map With ghosts = ", size(offset_map_with_ghosts))
 
-const error_map_with_ghosts = get_camera_calibration_data_with_ghosts(error_map, noise)
+const error_map_with_ghosts = 
+			get_camera_calibration_data_with_ghosts(error_map, noise)
 println("Size of error map With ghosts = ", size(error_map_with_ghosts))
 
 println("Done.")
@@ -214,7 +222,8 @@ flush(stdout);
 
 function get_illumination_patterns()
 	file_name = string(working_directory,
-						"illumination_patterns_", illumination_file_name_suffix,".tif")
+						"illumination_patterns_", 
+							illumination_file_name_suffix,".tif")
 
 	illum_imgs = TiffImages.load(file_name)
 	imgs = Matrix{Float64}[]
@@ -266,11 +275,11 @@ flush(stdout);
 	const jp_raw::Integer = ghost_size + (j_procs+1)*img_size/n_procs_per_dim
 	const sub_size_raw::Integer = img_size/n_procs_per_dim+ghost_size
 
-	const im_gt::Integer = i_procs*2*img_size/n_procs_per_dim + 1
-	const ip_gt::Integer = 2*ghost_size + (i_procs+1)*2*img_size/n_procs_per_dim
-	const jm_gt::Integer = j_procs*2*img_size/n_procs_per_dim + 1
-	const jp_gt::Integer = 2*ghost_size + (j_procs+1)*2*img_size/n_procs_per_dim
-	const sub_size_gt::Integer = 2*img_size/n_procs_per_dim+2*ghost_size
+	const im_sim::Integer = i_procs*2*img_size/n_procs_per_dim + 1
+	const ip_sim::Integer = 2*ghost_size+ (i_procs+1)*2*img_size/n_procs_per_dim
+	const jm_sim::Integer = j_procs*2*img_size/n_procs_per_dim + 1
+	const jp_sim::Integer = 2*ghost_size+ (j_procs+1)*2*img_size/n_procs_per_dim
+	const sub_size_sim::Integer = 2*img_size/n_procs_per_dim+2*ghost_size
 end
 
 @everywhere workers() function get_sub_images(imgs::Vector{Matrix{Float64}},
@@ -284,12 +293,14 @@ end
 
 println("Assigning sections of raw images to each processor...")
 flush(stdout);
-@everywhere workers() const sub_raw_images = get_sub_images($raw_images_with_ghosts,
+@everywhere workers() const sub_raw_images = 
+				get_sub_images($raw_images_with_ghosts,
 								im_raw, ip_raw, jm_raw, jp_raw)
 println("Done.")
 flush(stdout);
 
-@everywhere workers() function get_sub_calibration_map(full_map::Matrix{Float64},
+@everywhere workers() function get_sub_calibration_map(
+				full_map::Matrix{Float64},
 				im::Integer, ip::Integer, jm::Integer, jp::Integer)
 	sub_map::Matrix{Float64} = full_map[im:ip, jm:jp]
 	return sub_map
@@ -297,11 +308,14 @@ end
 
 println("Assigning sections of calibration maps to each processor...")
 flush(stdout);
-@everywhere workers() const sub_gain_map = get_sub_calibration_map($gain_map_with_ghosts,
+@everywhere workers() const sub_gain_map = 
+						get_sub_calibration_map($gain_map_with_ghosts,
 								im_raw, ip_raw, jm_raw, jp_raw)
-@everywhere workers() const sub_offset_map = get_sub_calibration_map($offset_map_with_ghosts,
+@everywhere workers() const sub_offset_map = 
+						get_sub_calibration_map($offset_map_with_ghosts,
 								im_raw, ip_raw, jm_raw, jp_raw)
-@everywhere workers() const sub_error_map = get_sub_calibration_map($error_map_with_ghosts,
+@everywhere workers() const sub_error_map = 
+						get_sub_calibration_map($error_map_with_ghosts,
 								im_raw, ip_raw, jm_raw, jp_raw)
 
 println("Done.")
@@ -311,7 +325,7 @@ println("Assigning sections of illumination patterns to each processor...")
 flush(stdout);
 @everywhere workers() const sub_illumination_patterns =
 					get_sub_images($illumination_patterns,
-						im_gt, ip_gt, jm_gt, jp_gt)
+						im_sim, ip_sim, jm_sim, jp_sim)
 println("Done.")
 flush(stdout);
 
@@ -346,24 +360,26 @@ flush(stdout);
 
 
 function get_widefield_image(illumination_prof::Matrix{Float64},
-										fluorophore_density::Matrix{Float64})
-	illuminated_density::Matrix{Float64} =
-					(illumination_prof .* fluorophore_density)
-	FFT_illuminated_density::Matrix{ComplexF64} =
-				fft(ifftshift(illuminated_density)) .* dx^2
+										fluorescence_intensity::Matrix{Float64})
+	illuminated_fluorescence_intensity::Matrix{Float64} =
+					(illumination_prof .* fluorescence_intensity)
+	FFT_illuminated_fluorescence_intensity::Matrix{ComplexF64} =
+				fft(ifftshift(illuminated_fluorescence_intensity)) .* dx^2
 	FFT_final::Matrix{ComplexF64} =
-				FFT_point_spread_function .* FFT_illuminated_density
+				FFT_point_spread_function .* 
+						FFT_illuminated_fluorescence_intensity
 
  	image::Matrix{Float64} = abs.(real.(fftshift(ifft(FFT_final))))
 
 	return image
 end
 
-function get_mean_images(ground_truth::Matrix{Float64})
+function get_mean_images(fluorescence_intensity::Matrix{Float64})
 	mean_images = Matrix{Float64}[]
 	for pattern in 1:9
 		final_image::Matrix{Float64} =
-			get_widefield_image(illumination_patterns[pattern], ground_truth)
+			get_widefield_image(illumination_patterns[pattern], 
+											fluorescence_intensity)
 		low_res_image::Matrix{Float64} = downsample_image(final_image, 2)
 		mean_images = vcat(mean_images, [low_res_image])
 	end
@@ -415,7 +431,7 @@ flush(stdout);
 
 @everywhere workers() function get_widefield_image_ij(
 						illumination_prof::Matrix{Float64},
-						fluorophore_density::Matrix{Float64},
+						fluorescence_intensity::Matrix{Float64},
 						i::Integer, j::Integer)
 
   	i_minus::Integer = i-ghost_size
@@ -431,14 +447,16 @@ flush(stdout);
 
 
 
-	illuminated_density::Matrix{Float64} = (illumination_prof[i_minus:i_plus,
-											j_minus:j_plus] .*
-											fluorophore_density[i_minus:i_plus,
-											j_minus:j_plus])
-	FFT_illuminated_density::Matrix{ComplexF64} =
-					fft(ifftshift(illuminated_density)) .* dx^2
+	illuminated_fluorescence_intensity::Matrix{Float64} = 
+							(illumination_prof[i_minus:i_plus,
+								j_minus:j_plus] .*
+							fluorescence_intensity[i_minus:i_plus,
+								j_minus:j_plus])
+	FFT_illuminated_fluorescence_intensity::Matrix{ComplexF64} =
+					fft(ifftshift(illuminated_fluorescence_intensity)) .* dx^2
 	FFT_final::Matrix{ComplexF64} =
-				FFT_point_spread_function_ij .* FFT_illuminated_density
+				FFT_point_spread_function_ij .* 
+							FFT_illuminated_fluorescence_intensity
 
  	image::Matrix{Float64} = abs.(real.(fftshift(ifft(FFT_final))))
 
@@ -446,13 +464,14 @@ flush(stdout);
 end
 
 
-@everywhere workers() function get_mean_images_ij(ground_truth::Matrix{Float64},
+@everywhere workers() function get_mean_images_ij(
+							fluorescence_intensity::Matrix{Float64},
 									i::Integer, j::Integer)
 	mean_images_ij = Matrix{Float64}[]
 	for pattern in 1:9
 		final_image::Matrix{Float64} =
 				get_widefield_image_ij(sub_illumination_patterns[pattern],
-											ground_truth, i, j)
+											fluorescence_intensity, i, j)
 		low_res_image::Matrix{Float64} = downsample_image(final_image, 2)
 		mean_images_ij = vcat(mean_images_ij, [low_res_image])
 	end
@@ -532,9 +551,9 @@ end
 
 
 # The following Gibbs sampler computes likelihood for the neighborhood only.
-@everywhere workers() function sample_gt_neighborhood(
+@everywhere workers() function sample_fluorescence_intensity_neighborhood(
 									temperature::Float64,
-									gt::Matrix{Float64},
+									fluorescence_intensity::Matrix{Float64},
 									shot_noise_images::Vector{Matrix{Float64}})
 
 	local ii::Integer
@@ -557,8 +576,8 @@ end
 	local log_backward_proposal_probability::Float64
 
 
-	for i in collect(ghost_size+1:2:sub_size_gt-ghost_size)
-		for j in collect(ghost_size+1:2:sub_size_gt-ghost_size)
+	for i in collect(ghost_size+1:2:sub_size_sim-ghost_size)
+		for j in collect(ghost_size+1:2:sub_size_sim-ghost_size)
 
  			ii = ceil(i/2)
  			jj = ceil(j/2)
@@ -566,7 +585,7 @@ end
 			shot_noise_imgs_ij = get_shot_noise_images_ij(ii, jj,
 										shot_noise_images)
 
-			mean_imgs_ij = get_mean_images_ij(gt, i, j)
+			mean_imgs_ij = get_mean_images_ij(fluorescence_intensity, i, j)
 
 			old_log_likelihood = get_log_likelihood_ij(ii, jj,
 									mean_imgs_ij, shot_noise_imgs_ij)
@@ -575,22 +594,25 @@ end
 			old_jac = 0.0
 			for l in 0:1
 				for m in 0:1
-					old_log_prior += logpdf(Gamma(gamma_prior_shape, gamma_prior_scale), gt[i+l, j+m])
-					old_jac += log(gt[i+l, j+m])
+					old_log_prior += logpdf(Gamma(gamma_prior_shape, gamma_prior_scale), 
+											fluorescence_intensity[i+l, j+m])
+					old_jac += log(fluorescence_intensity[i+l, j+m])
 				end
 			end
 			old_log_posterior = old_log_likelihood + old_log_prior
 
-			proposed_gt = copy(gt)
+			proposed_fluorescence_intensity = deepcopy(fluorescence_intensity)
 			for l in 0:1
 				for m in 0:1
-					proposed_gt[i+l, j+m] =
-						rand(Normal(log(gt[i+l, j+m]),
-										covariance_gt), 1)[1]
-					proposed_gt[i+l, j+m] = exp.(proposed_gt[i+l, j+m])
+					proposed_fluorescence_intensity[i+l, j+m] =
+						rand(Normal(log(fluorescence_intensity[i+l, j+m]),
+										covariance_fluorescence_intensity), 1)[1]
+					proposed_fluorescence_intensity[i+l, j+m] = 
+								exp.(proposed_fluorescence_intensity[i+l, j+m])
 				end
 			end
-			proposed_mean_imgs_ij = get_mean_images_ij(proposed_gt, i, j)
+			proposed_mean_imgs_ij = 
+						get_mean_images_ij(proposed_fluorescence_intensity, i, j)
 
 			new_log_likelihood = get_log_likelihood_ij(ii, jj,
 							proposed_mean_imgs_ij, shot_noise_imgs_ij)
@@ -600,8 +622,8 @@ end
 			for l in 0:1
 				for m in 0:1
 					new_log_prior += logpdf(Gamma(gamma_prior_shape, gamma_prior_scale),
-												proposed_gt[i+l, j+m])
-					new_jac += log(proposed_gt[i+l, j+m])
+												proposed_fluorescence_intensity[i+l, j+m])
+					new_jac += log(proposed_fluorescence_intensity[i+l, j+m])
 				end
 			end
 			new_log_posterior = new_log_likelihood + new_log_prior
@@ -613,8 +635,8 @@ end
 
 
 			if log_hastings > log(rand())
-				gt = copy(proposed_gt)
-				mean_imgs_ij = copy(proposed_mean_imgs_ij)
+				fluorescence_intensity = deepcopy(proposed_fluorescence_intensity)
+				mean_imgs_ij = deepcopy(proposed_mean_imgs_ij)
 			end
 
 
@@ -675,15 +697,15 @@ end
 
 		end
 	end
-	return gt, shot_noise_images
+	return fluorescence_intensity, shot_noise_images
 end
 
-function get_log_likelihood(ground_truth::Matrix{Float64},
+function get_log_likelihood(fluorescence_intensity::Matrix{Float64},
 							shot_noise_images::Vector{Matrix{Float64}})
 
 	log_likelihood::Float64 = 0.0
 
-	mean_images::Vector{Matrix{Float64}} = get_mean_images(ground_truth)
+	mean_images::Vector{Matrix{Float64}} = get_mean_images(fluorescence_intensity)
 	val_range = collect(half_ghost_size+1:1:half_ghost_size+img_size)
 	for pattern in 1:9
 		log_likelihood += sum(logpdf.(Poisson.(
@@ -700,12 +722,14 @@ function get_log_likelihood(ground_truth::Matrix{Float64},
 	return log_likelihood
 end
 
-function compute_full_log_posterior(gt::Matrix{Float64},
+function compute_full_log_posterior(fluorescence_intensity::Matrix{Float64},
 							shot_noise_images::Vector{Matrix{Float64}})
 
-	log_likelihood::Float64 = get_log_likelihood(gt, shot_noise_images)
-	log_prior::Float64 = sum(logpdf.(Gamma(gamma_prior_shape, gamma_prior_scale),
-							(gt[ghost_size+1:end-ghost_size,
+	log_likelihood::Float64 = get_log_likelihood(fluorescence_intensity, 
+													shot_noise_images)
+	log_prior::Float64 = sum(logpdf.(Gamma(gamma_prior_shape, 
+											gamma_prior_scale),
+							(fluorescence_intensity[ghost_size+1:end-ghost_size,
 								ghost_size+1:end-ghost_size].+eps(1.0))))
 	log_posterior::Float64 = log_likelihood + log_prior
 
@@ -713,15 +737,17 @@ function compute_full_log_posterior(gt::Matrix{Float64},
 	return log_posterior
 end
 
-function sample_gt(draw::Integer, gt::Matrix{Float64},
-			shot_noise_imgs::Vector{Matrix{Float64}})
+function sample_fluorescence_intensity(draw::Integer, 
+				fluorescence_intensity::Matrix{Float64},
+				shot_noise_imgs::Vector{Matrix{Float64}})
 
 	if draw > initial_burn_in_period
-		temperature = 1.0 + (annealing_starting_temperature-1.0)*
-				exp(-((draw-1) % annealing_frequency)/annealing_time_constant)
-	else
-		temperature = 1.0
-	end
+        temperature = 1.0 + (annealing_starting_temperature-1.0)*               
+                exp(-((draw-1) % annealing_frequency)/annealing_time_constant)  
+    else                                                                        
+        temperature = 1.0                                                       
+    end   
+
 	println("Temperature = ", temperature)
 	flush(stdout);
 
@@ -730,13 +756,15 @@ function sample_gt(draw::Integer, gt::Matrix{Float64},
 
 		temperature = $temperature
 
-		sub_gt::Matrix{Float64} = ($gt)[im_gt:ip_gt, jm_gt:jp_gt]
+		sub_fluorescence_intensity::Matrix{Float64} = 
+				($fluorescence_intensity)[im_sim:ip_sim, jm_sim:jp_sim]
 		sub_shot_noise_imgs::Vector{Matrix{Float64}} =
 						get_sub_images($shot_noise_imgs,
 								im_raw, ip_raw, jm_raw, jp_raw)
 
-		sub_gt, sub_shot_noise_imgs =
-				sample_gt_neighborhood(temperature, sub_gt, sub_shot_noise_imgs)
+		sub_fluorescence_intensity, sub_shot_noise_imgs =
+				sample_fluorescence_intensity_neighborhood(temperature, 
+								sub_fluorescence_intensity, sub_shot_noise_imgs)
 
 	end
 
@@ -755,7 +783,8 @@ function sample_gt(draw::Integer, gt::Matrix{Float64},
  			jm = ghost_size+j*2*img_size/n_procs_per_dim + 1
  			jp = ghost_size + (j+1)*2*img_size/n_procs_per_dim
 
- 			gt[im:ip, jm:jp] = @fetchfrom (j*n_procs_per_dim+i+2) sub_gt[
+ 			fluorescence_intensity[im:ip, jm:jp] = 
+				@fetchfrom (j*n_procs_per_dim+i+2) sub_fluorescence_intensity[
  							ghost_size+1:end-ghost_size,
  							ghost_size+1:end-ghost_size]
 
@@ -774,34 +803,38 @@ function sample_gt(draw::Integer, gt::Matrix{Float64},
  		end
  	end
 
-	return gt, shot_noise_imgs
+	return fluorescence_intensity, shot_noise_imgs
 end
 
 function save_data(current_draw::Integer,
 					mcmc_log_posterior::Vector{Float64},
-					gt::Matrix{Float64},
+					fluorescence_intensity::Matrix{Float64},
 					shot_noise_images::Vector{Matrix{Float64}},
 					MAP_index::Integer,
-					gt_MAP::Matrix{Float64},
-					gt_mean::Matrix{Float64},
-					gt_variance::Matrix{Float64},
+					fluorescence_intensity_MAP::Matrix{Float64},
+					fluorescence_intensity_mean::Matrix{Float64},
+					fluorescence_intensity_variance::Matrix{Float64},
 					averaging_counter::Float64)
 
 	# Save the data in HDF5 format.
-	file_name = string(working_directory, "mcmc_output_", illumination_file_name_suffix,
+	file_name = string(working_directory, "mcmc_output_", 
+					  	illumination_file_name_suffix,
 									"_", current_draw, ".h5")
 
 	fid = h5open(file_name,"w")
 	write_dataset(fid, string("averaging_counter"), averaging_counter)
-	write_dataset(fid, string("inferred_density"), gt)
+	write_dataset(fid, string("inferred_fluorescence_intensity"), fluorescence_intensity)
 	write_dataset(fid, string("MAP_index"), MAP_index)
-	write_dataset(fid, string("MAP_inferred_density"), gt_MAP)
-	write_dataset(fid, string("mean_inferred_density"), gt_mean)
-	write_dataset(fid, string("variance_inferred_density"), gt_variance)
+	write_dataset(fid, string("MAP_fluorescence_intensity"), 
+				  				fluorescence_intensity_MAP)
+	write_dataset(fid, string("mean_fluorescence_intensity"), 
+				  				fluorescence_intensity_mean)
+	write_dataset(fid, string("variance_fluorescence_intensity"), 
+				  				fluorescence_intensity_variance)
 
 	for pattern in 1:9
 			write_dataset(fid, string("shot_noise_images_", pattern),
-										shot_noise_images[pattern])
+								shot_noise_images[pattern])
 	end
 	write_dataset(fid, "mcmc_log_posteriors",
 								mcmc_log_posterior[1:current_draw])
@@ -811,7 +844,8 @@ function save_data(current_draw::Integer,
 end
 
 if plotting == true
-	function plot_results(draw, mcmc_log_posterior, gt, shot_noise_images, mean_gt)
+	function plot_results(draw, mcmc_log_posterior, fluorescence_intensity, 
+						shot_noise_images, mean_fluorescence_intensity)
 
 		if draw > posterior_moving_window_size
 			plot_a = plot(collect(draw-posterior_moving_window_size:draw), 
@@ -840,13 +874,14 @@ if plotting == true
 		end
 
 
-		plot_b = heatmap(gt[ghost_size+1:end-ghost_size,
+		plot_b = heatmap(fluorescence_intensity[ghost_size+1:end-ghost_size,
 					ghost_size+1:end-ghost_size],
 					c=:grays, legend=false, size=(2000, 2000),
 					title = "Current SIM Sample",
 					xtickfontsize=20,						
 					ytickfontsize=20,
-					titlefontsize=20
+					titlefontsize=20,
+					yflip=true
 					);
 
 		plot_c = heatmap(input_raw_images[1],
@@ -855,7 +890,8 @@ if plotting == true
 					xticks=false,
 					xtickfontsize=20,						
 					ytickfontsize=20,
-					titlefontsize=20
+					titlefontsize=20,
+					yflip=true
 					);
 		plot_d = heatmap(shot_noise_images[1][
 					half_ghost_size+1:end-half_ghost_size,
@@ -865,25 +901,41 @@ if plotting == true
 					ticks=false,
 					xtickfontsize=20,						
 					ytickfontsize=20,
-					titlefontsize=20
+					titlefontsize=20,
+					yflip=true
 				);
 
-		plot_e = heatmap(ground_truth,
+		if ground_truth_available == true
+			plot_e = heatmap(ground_truth,
 					c=:grays, legend=false, size=(2000, 2000),
 					title = "Ground Truth",
 					ticks=false,
 					xtickfontsize=20,						
 					ytickfontsize=20,
-					titlefontsize=20
+					titlefontsize=20,
+					yflip=true
 					);
-		plot_f = heatmap(mean_gt[ghost_size+1:end-ghost_size,
+		else
+			plot_e = heatmap(zeros(2*raw_image_size, 2*raw_image_size),
+					c=:grays, legend=false, size=(2000, 2000),
+					title = "Ground Truth Not Available",
+					ticks=false,
+					xtickfontsize=20,						
+					ytickfontsize=20,
+					titlefontsize=20,
+					yflip=true
+					);
+
+		end
+		plot_f = heatmap(mean_fluorescence_intensity[ghost_size+1:end-ghost_size,
 					ghost_size+1:end-ghost_size],
 					c=:grays, legend=false, size=(2000, 2000),
 					title = "Mean SIM Image",
 					yticks=false,
 					xtickfontsize=20,						
 					ytickfontsize=20,
-					titlefontsize=20
+					titlefontsize=20,
+					yflip=true
 					);
 
 		display(plot(plot_c, plot_d, plot_e, plot_a, plot_b, plot_f,
@@ -892,40 +944,43 @@ if plotting == true
 	end
 end
 
-function sampler_SIM(draws::Integer, initial_inferred_density::Matrix{Float64},
-						initial_shot_noise_images::Vector{Matrix{Float64}})
+function sampler_SIM(draws::Integer, 
+					initial_fluorescence_intensity::Matrix{Float64},
+					initial_shot_noise_images::Vector{Matrix{Float64}})
 
 	# Initialize
 	draw::Integer = 1
 	println("draw = ", draw)
 	flush(stdout);
 
-  	gt::Matrix{Float64} = copy(initial_inferred_density)
+  	fluorescence_intensity::Matrix{Float64} = deepcopy(initial_fluorescence_intensity)
 	MAP_index::Integer = 1
-   	MAP_gt::Matrix{Float64} = copy(gt)
-   	sum_gt::Matrix{Float64} =
+   	MAP_fluorescence_intensity::Matrix{Float64} = deepcopy(fluorescence_intensity)
+   	sum_fluorescence_intensity::Matrix{Float64} =
  				zeros(2*img_size+2*ghost_size, 2*img_size+2*ghost_size)
-   	mean_gt::Matrix{Float64} =
+   	mean_fluorescence_intensity::Matrix{Float64} =
  				zeros(2*img_size+2*ghost_size, 2*img_size+2*ghost_size)
-   	sum_squared_gt::Matrix{Float64} =
+   	sum_squared_fluorescence_intensity::Matrix{Float64} =
  				zeros(2*img_size+2*ghost_size, 2*img_size+2*ghost_size)
-   	mean_squared_gt::Matrix{Float64} =
+   	mean_squared_fluorescence_intensity::Matrix{Float64} =
  				zeros(2*img_size+2*ghost_size, 2*img_size+2*ghost_size)
-   	variance_gt::Matrix{Float64} =
+   	variance_fluorescence_intensity::Matrix{Float64} =
  				zeros(2*img_size+2*ghost_size, 2*img_size+2*ghost_size)
 
 
 
-	shot_noise_images::Vector{Matrix{Float64}} = copy(initial_shot_noise_images)
+	shot_noise_images::Vector{Matrix{Float64}} = deepcopy(initial_shot_noise_images)
 
 	mcmc_log_posterior::Vector{Float64} = zeros(draws)
   	mcmc_log_posterior[draw] =
-  				compute_full_log_posterior(gt, shot_noise_images)
+  				compute_full_log_posterior(fluorescence_intensity, 
+										   			shot_noise_images)
 
 	averaging_counter::Float64 = 0.0
 
 	if plotting == true
-		plot_results(draw, mcmc_log_posterior, gt, shot_noise_images, mean_gt)
+		plot_results(draw, mcmc_log_posterior, fluorescence_intensity, 
+					 		shot_noise_images, mean_fluorescence_intensity)
 	end
 
 	for draw in 2:draws
@@ -933,14 +988,16 @@ function sampler_SIM(draws::Integer, initial_inferred_density::Matrix{Float64},
 		println("draw = ", draw)
 		flush(stdout);
 
-		gt, shot_noise_images =
-					sample_gt(draw, gt, shot_noise_images)
+		fluorescence_intensity, shot_noise_images =
+					sample_fluorescence_intensity(draw, 
+						fluorescence_intensity, shot_noise_images)
   		mcmc_log_posterior[draw] =
-  					compute_full_log_posterior(gt, shot_noise_images)
+  					compute_full_log_posterior(fluorescence_intensity, 
+											   shot_noise_images)
 
 		if mcmc_log_posterior[draw] == maximum(mcmc_log_posterior[1:draw])
 			MAP_index = draw
-			MAP_gt = copy(gt)
+			MAP_fluorescence_intensity = deepcopy(fluorescence_intensity)
 		end
 
 		if (draw >= initial_burn_in_period) &&
@@ -948,21 +1005,25 @@ function sampler_SIM(draws::Integer, initial_inferred_density::Matrix{Float64},
 					(draw % averaging_frequency == 0)
 
  			averaging_counter += 1.0
- 			sum_gt += copy(gt)
- 			sum_squared_gt += copy(gt).^2
- 			mean_gt = sum_gt ./ averaging_counter
- 			mean_squared_gt = sum_squared_gt ./ averaging_counter
- 			variance_gt = mean_squared_gt .- (mean_gt.^2)
+ 			sum_fluorescence_intensity += deepcopy(fluorescence_intensity)
+ 			sum_squared_fluorescence_intensity += 
+										deepcopy(fluorescence_intensity).^2
+ 			mean_fluorescence_intensity = 
+							sum_fluorescence_intensity ./ averaging_counter
+ 			mean_squared_fluorescence_intensity = 
+							sum_squared_fluorescence_intensity ./ averaging_counter
+ 			variance_fluorescence_intensity = 
+					mean_squared_fluorescence_intensity .- (mean_fluorescence_intensity.^2)
 
  			println("Averaging Counter = ", averaging_counter)
  			println("Saving Data...")
  			flush(stdout);
 
  			save_data(draw, mcmc_log_posterior,
- 					gt, shot_noise_images,
+ 					fluorescence_intensity, shot_noise_images,
 					MAP_index,
-					MAP_gt,
- 					mean_gt, variance_gt,
+					MAP_fluorescence_intensity,
+ 					mean_fluorescence_intensity, variance_fluorescence_intensity,
  					averaging_counter)
 
  			println("Done.")
@@ -972,14 +1033,16 @@ function sampler_SIM(draws::Integer, initial_inferred_density::Matrix{Float64},
 
 		if draw % plotting_frequency == 0 && plotting == true
 			plot_results(draw, mcmc_log_posterior,
-						gt, shot_noise_images, mean_gt)
+						fluorescence_intensity, 
+						shot_noise_images, 
+						mean_fluorescence_intensity)
 		end
 
 		# Garbage Collection and free memory
  		@everywhere GC.gc()
 	end
 
-	return gt, shot_noise_images
+	return fluorescence_intensity, shot_noise_images
 end
 
 
@@ -987,8 +1050,8 @@ println("Initializing SIM Reconstruction...")
 flush(stdout);
 
 # Initialize inferred images
-inferred_density = zeros(2*img_size+2*ghost_size, 2*img_size+2*ghost_size)
-inferred_density[ghost_size+1:end-ghost_size,
+inferred_fluorescence_intensity = zeros(2*img_size+2*ghost_size, 2*img_size+2*ghost_size)
+inferred_fluorescence_intensity[ghost_size+1:end-ghost_size,
 			ghost_size+1:end-ghost_size]=rand(2*img_size, 2*img_size)
 inferred_shot_noise_images = deepcopy(raw_images_with_ghosts)
 
@@ -1001,8 +1064,8 @@ end
 println("Starting sampler...")
 flush(stdout);
 
-inferred_density, inferred_shot_noise_images =
-		sampler_SIM(total_draws, inferred_density, inferred_shot_noise_images)
+inferred_fluorescence_intensity, inferred_shot_noise_images =
+		sampler_SIM(total_draws, inferred_fluorescence_intensity, inferred_shot_noise_images)
 
 # Kill all the processes
 rmprocs(workers())
