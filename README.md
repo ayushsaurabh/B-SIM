@@ -76,8 +76,7 @@ On a linux or macOS machine, the "B-SIM.jl" script can be run directly from the 
 
 Now, B-SIM is a fully parallelized code and starts execution by first adding the required number of processors. Next, all the input tif files are imported and divided according to the parallelization grid (4x4 by default). The sub-images are then sent to each processor. All the functions involved in SIM reconstruction are compiled next. Finally, the sampler starts and with each iteration outputs the log(posterior) values and a temperature parameter that users are not required to modify (see picture below).
 
-
-![Screenshot from 2023-11-08 14-20-59](https://github.com/ayushsaurabh/B-SIM/assets/87823118/28210b7f-3fdb-40b7-9929-5cc7f2ca9925)
+![Screenshot from 2023-12-10 21-59-46](https://github.com/ayushsaurabh/B-SIM/assets/87823118/8573db14-fea7-4ed3-9823-550e7dc85162)
 
 
 Depending on whether plotting option is chosen to be ```true``` or ```false``` in the "input_parameters.jl" file, the code also generates a plot showing the the log(posterior), one of the input raw images, the intermediate shot noise image, ground truth, current sample, and a mean of the previous samples (depending on averaging frequency) as shown in the picture below.
