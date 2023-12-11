@@ -41,7 +41,10 @@ These two ways are equivalent. Both of them create a new Julia environment the f
 
 Complex programs like B-SIM require scripts for better organization instead of typing functions into the REPL for every run. B-SIM is currently organized into two scripts. First script "B-SIM.jl" contains all the functions performing SIM reconstruction and the second script "input_parameters.jl" defines all the input parameters needed to perform reconstruction (see the image below).
 
-![Screenshot from 2023-12-10 21-36-04](https://github.com/ayushsaurabh/B-SIM/assets/87823118/0b585285-1576-41d1-9293-60596716518e)
+
+
+![Screenshot from 2023-12-10 22-02-53](https://github.com/ayushsaurabh/B-SIM/assets/87823118/7f942a2b-90f7-42e9-bae8-de55c248eb76)
+
 
 
 These parameters define the shape of the microscope point spread function (numerical aperture, magnification, light wavelength), camera noise (gain, CCD sensitivity, readout), directory (folder) where files are located, file name, parallelization and inference settings. 
@@ -68,6 +71,7 @@ B-SIM code can now be executed by simply importing the "B-SIM.jl" in the REPL as
 ![Screenshot from 2023-11-08 14-10-07](https://github.com/ayushsaurabh/B-SIM/assets/87823118/cf5bf788-ab49-48f6-b2e2-586382eb1c0f)
 
 
+
 On a linux or macOS machine, the "B-SIM.jl" script can be run directly from the terminal after entering the B-SIM directory and executing the following command:
 
 ```julia B-SIM.jl```
@@ -80,6 +84,7 @@ Now, B-SIM is a fully parallelized code and starts execution by first adding the
 
 
 Depending on whether plotting option is chosen to be ```true``` or ```false``` in the "input_parameters.jl" file, the code also generates a plot showing the the log(posterior), one of the input raw images, the intermediate shot noise image, ground truth, current sample, and a mean of the previous samples (depending on averaging frequency) as shown in the picture below.
+
 
 
 ![Screenshot from 2023-12-10 20-56-06](https://github.com/ayushsaurabh/B-SIM/assets/87823118/f6376478-6aa4-473f-8f97-91c652c0bdfd)
