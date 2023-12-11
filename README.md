@@ -30,7 +30,7 @@ In Windows, this interactive environment can be started by clicking on the Julia
 **To get out of the package manager, simply hit the backspace key.**
 
 ### Environment Creation
-**This is users who already have Julia installed.**
+**This is for advanced users who already have Julia installed.**
 If you already have Julia and do not want to alter your default environment, you can go to the directory where this software is, then 
 1. Run Julia then type `]` and `activate .`;
 2. Or run Julia in terminal via `julia --project`.
