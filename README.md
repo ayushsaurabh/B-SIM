@@ -49,9 +49,9 @@ Complex programs like B-SIM require scripts for better organization instead of t
 
 These parameters define the shape of the microscope point spread function (numerical aperture, magnification, light wavelength), camera noise (gain, CCD sensitivity, readout), directory (folder) where files are located, file name, parallelization and inference settings. 
 
-Using the settings in the image above, we here provide two simple plug and play example to test the functioning of B-SIM on a personal computer. In the first example for simulated line pairs with spacing varying 90nm to 150nm, we provide three tiff files "raw_images_line_pairs_84x84_500nm_highSNR.tif", "illumination_patterns_line_pairs_168x168_500nm_highSNR.tif", and "ground_truth_line_pairs_168x168_500nm_highSNR.tif" containing 9 sinuosidal patterns and corresponding raw images as well as the ground truth. 
+Using parameter files similar to the the image above, we here provide two simple plug and play example to test the functioning of B-SIM on a personal computer. In the first example for simulated line pairs with spacing varying 90nm to 150nm in increments of 30nm, we provide three tiff files "raw_images_line_pairs_84x84_500nm_highSNR.tif", "illumination_patterns_line_pairs_168x168_500nm_highSNR.tif", and "ground_truth_line_pairs_168x168_500nm_highSNR.tif" containing 9 sinuosidal patterns and corresponding raw images as well as the ground truth. 
 
-In the second example for HeLa cells images obtained in an experiment, we also provide camera calibration maps in additional to the raw images and illumination patterns. 
+In the second example for HeLa cells images obtained in an experiment, we also provide camera calibration maps in addition to the raw images and illumination patterns. 
 
 Currently, B-SIM only accepts square images but can be easily modified to accept rectangular images. Furthermore, the current version assumes a Gaussian point spread function but can be modified easily to incorporate any other shape.
 
