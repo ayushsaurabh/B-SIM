@@ -41,9 +41,7 @@ These two ways are equivalent. Both of them create a new Julia environment the f
 
 Complex programs like B-SIM require scripts for better organization instead of typing functions into the REPL for every run. B-SIM is currently organized into two scripts. First script "B-SIM.jl" contains all the functions performing SIM reconstruction and the second script "input_parameters.jl" defines all the input parameters needed to perform reconstruction (see the image below).
 
-
-![Screenshot from 2023-12-08 16-09-53](https://github.com/ayushsaurabh/B-SIM/assets/87823118/31d76292-619f-4f97-a11e-b25ed25f8158)
-
+![Screenshot from 2023-12-10 21-36-04](https://github.com/ayushsaurabh/B-SIM/assets/87823118/0b585285-1576-41d1-9293-60596716518e)
 
 
 These parameters define the shape of the microscope point spread function (numerical aperture, magnification, light wavelength), camera noise (gain, CCD sensitivity, readout), directory (folder) where files are located, file name, parallelization and inference settings. 
@@ -85,7 +83,8 @@ Now, B-SIM is a fully parallelized code and starts execution by first adding the
 Depending on whether plotting option is chosen to be ```true``` or ```false``` in the "input_parameters.jl" file, the code also generates a plot showing the the log(posterior), one of the input raw images, the intermediate shot noise image, ground truth, current sample, and a mean of the previous samples (depending on averaging frequency) as shown in the picture below.
 
 
-![Screenshot from 2023-11-08 14-27-24](https://github.com/ayushsaurabh/B-SIM/assets/87823118/8ecfc77e-ac1f-4be9-b8ef-5d4b7da5ce0f)
+![Screenshot from 2023-12-10 20-56-06](https://github.com/ayushsaurabh/B-SIM/assets/87823118/f6376478-6aa4-473f-8f97-91c652c0bdfd)
+
 
 
 Finally, as samples are collected, B-SIM saves intermediate samples and analysis data onto the hard drive in the HDF5 format with file names that look like "mcmc_output_...1000.h5". The save frequency can be modified by changing a few inference parameters in the "input_parameters.jl" file: "initial_burn_in_period" which is set based on when the sampler converges for the **first time**; simulated annealing is restarted at regular intervals set by the parameter "annealing_frequency"; simulated annealing starts with temperature set by "annealing_starting_temperature" and then the temperature decays exponentially with time constant set by "annealing_time_constant"; samples to be averaged are collected after the "annealing_burn_in_period" during which the sampler converges after increasing the temperature; and lastly, samples are collected at the "averaging_frequency" after the annealing burn-in period. Use of simulated annealing here helps uncorrelate the chain of samples by smoothing and widening the posterior at intermediate iterations by raising temperature, allowing the sampler to easily move far away from the current sample. Based on these parameters, the samples are saved whenever the following conditions are satisfied: 
