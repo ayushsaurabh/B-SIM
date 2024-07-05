@@ -66,7 +66,7 @@ To run this example, we suggest putting B-SIM scripts and the input tif files in
 
 ```cd("/home/username/B-SIM/")```
 
-B-SIM code can now be executed by simply importing the "B-SIM.jl" in the REPL as shown in the picture below
+B-SIM code can now be executed by simply importing the "main.jl" in the REPL as shown in the picture below
 
 ```include("main.jl")```
 
@@ -75,7 +75,7 @@ B-SIM code can now be executed by simply importing the "B-SIM.jl" in the REPL as
 
 
 
-On a linux or macOS machine, the "B-SIM.jl" script can be run directly from the terminal after entering the B-SIM directory and executing the following command:
+On a linux or macOS machine, the "main.jl" script can be run directly from the terminal after entering the B-SIM directory and executing the following command:
 
 ```julia main.jl```
 
