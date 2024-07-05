@@ -8,7 +8,7 @@ https://www.biorxiv.org/content/10.1101/2023.12.07.570701v2
 
 ## Julia Installation
 
-**System Requirements: B-SIM is a parallelized code and has been fully tested on modern desktops and laptops with at least 4 processor cores.  In addition to about twice the memory required to load SIM raw images, illumination patterns, and SIM image globally, B-SIM typically requests 300-500 MB of RAM to load Julia packages on each processor core.**
+**System Requirements: B-SIM is a parallelized code and has been fully tested on modern desktops and laptops with at least 4 processor cores.  In addition to about twice the memory required to load SIM raw images, illumination patterns, and SIM image globally, B-SIM typically requests about 250 MB of RAM to load Julia packages on each processor core.**
 
 All the codes are written in Julia language for high performance/speed (similar to C and Fortran) and its open-source/free availability. Julia also allows easy parallelization of all the codes. To install julia, please download and install julia language installer from their official website (see below) for your operating system or use your package manager. The current version of the code has been successfully tested on linux (Ubuntu 22.04), macOS 12, and Windows.
 
@@ -39,7 +39,7 @@ These two ways are equivalent. Both of them create a new Julia environment the f
 
 ## Test Examples
 
-Complex programs like B-SIM require scripts for better organization instead of typing functions into the REPL for every run. B-SIM is currently organized into two scripts. First script "B-SIM.jl" contains all the functions performing SIM reconstruction and the second script "input_parameters.jl" defines all the input parameters needed to perform reconstruction (see the image below).
+Complex programs like B-SIM require scripts for better organization instead of typing functions into the REPL for every run. B-SIM is currently organized into multiple scripts. The main script "main.jl" calls all the functions performing SIM reconstruction and the input parameter script "input_parameters.jl" defines all the input parameters needed to perform reconstruction (see the image below).
 
 
 
@@ -49,11 +49,11 @@ Complex programs like B-SIM require scripts for better organization instead of t
 
 These parameters define the shape of the microscope point spread function (numerical aperture, magnification, light wavelength), camera noise (gain, CCD sensitivity, readout), directory (folder) where files are located, file name, parallelization and inference settings. 
 
-Using parameter files similar to the the image above, we here provide two simple plug and play example to test the functioning of B-SIM on a personal computer. In the first example for simulated line pairs with spacing varying 90nm to 150nm in increments of 30nm, we provide three tiff files "raw_images_line_pairs_84x84_500nm_highSNR.tif", "illumination_patterns_line_pairs_168x168_500nm_highSNR.tif", and "ground_truth_line_pairs_168x168_500nm_highSNR.tif" containing 9 sinuosidal patterns and corresponding raw images as well as the ground truth. 
+Using parameter files similar to the the image above, we here provide two simple plug and play example to test the functioning of B-SIM on a personal computer. In the first example for simulated line pairs with spacing varying 90nm to 150nm in increments of 30nm, we provide three tiff files "raw_images.tif", "patterns.tif", and "ground_truth.tif" containing 9 sinuosidal patterns and corresponding raw images as well as the ground truth. 
 
 In the second example for HeLa cells images obtained in an experiment, we also provide camera calibration maps in addition to the raw images and illumination patterns. 
 
-Currently, B-SIM only accepts square images but can be easily modified to accept rectangular images. Furthermore, the current version assumes a Gaussian point spread function but can be modified easily to incorporate any other shape.
+Currently, B-SIM accepts rectangular images. Furthermore, the current version provides two options for the PSF: "gaussian" and "airy_disk", but can be modified easily to incorporate any other shape.
 
 With the settings in the image above, the code divides all the images into 4 sets of sub-images of equal sizes (a 2x2 grid). Next, each set of sub-images is then sent to their assigned processor and inference is performed on the fluorescence intensity map. The number of processors can be changed if running on a more powerful computer by changing "n_procs_per_dim" parameter, which is set to 2 by default.
 
@@ -67,7 +67,7 @@ To run this example, we suggest putting B-SIM scripts and the input tif files in
 
 B-SIM code can now be executed by simply importing the "B-SIM.jl" in the REPL as shown in the picture below
 
-```include("B-SIM.jl")```
+```include("main.jl")```
 
 
 ![Screenshot from 2023-11-08 14-10-07](https://github.com/ayushsaurabh/B-SIM/assets/87823118/cf5bf788-ab49-48f6-b2e2-586382eb1c0f)
@@ -76,7 +76,7 @@ B-SIM code can now be executed by simply importing the "B-SIM.jl" in the REPL as
 
 On a linux or macOS machine, the "B-SIM.jl" script can be run directly from the terminal after entering the B-SIM directory and executing the following command:
 
-```julia B-SIM.jl```
+```julia main.jl```
 
 **WARNING: Please note that when running the code through the REPL, restart the REPL if B-SIM throws an error. Every execution of B-SIM adds processors to the julia REPL and processor ID or label increases in value. To make sure that processor labels always start at 1, we suggest avoiding restarting B-SIM in the same REPL.**
 
