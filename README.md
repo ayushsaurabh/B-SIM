@@ -69,8 +69,7 @@ B-SIM code can now be executed by simply importing the "main.jl" in the REPL as 
 
 ```include("main.jl")```
 
-
-![image](https://github.com/user-attachments/assets/daeee0ee-1f9b-4b03-81ec-c7758c32dfb2)
+![image](https://github.com/user-attachments/assets/88c41cdf-9e26-4d40-b875-b34fd057522f)
 
 
 
@@ -83,7 +82,8 @@ On a linux or macOS machine, the "main.jl" script can be run directly from the t
 
 Now, B-SIM is a fully parallelized code and starts execution by first adding the required number of processors. Next, all the input tif files are imported and divided according to the parallelization grid (2x2 by default). The sub-images are then sent to each processor. All the functions involved in SIM reconstruction are compiled next. Finally, the sampler starts and with each iteration outputs the log(posterior) values and a temperature parameter that users are not required to modify (see picture below). At the end of each iteration, sub-images are sent back to the master processor and combined into one image.
 
-![image](https://github.com/ayushsaurabh/B-SIM/assets/87823118/93570832-ead3-4d3a-a16d-6d52afc0bbea)
+![image](https://github.com/user-attachments/assets/2fc72885-2195-4f2a-b2fd-478310c49d06)
+
 
 
 
