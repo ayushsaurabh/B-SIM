@@ -108,7 +108,7 @@ where % indicates remainder upon division. For instance, using the default setti
 
 ```
 
-![image](https://github.com/user-attachments/assets/7119506f-b378-4fbf-8181-af31935cd593)
+![image](https://github.com/user-attachments/assets/8c85c2a7-9827-427d-bebd-7d09a60c5007)
 
 
 ## A Brief Description of the Sampler
