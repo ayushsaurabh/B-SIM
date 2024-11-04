@@ -41,7 +41,8 @@ These two ways are equivalent. Both of them create a new Julia environment the f
 
 Complex programs like B-SIM require scripts for better organization instead of typing functions into the REPL for every run. B-SIM is currently organized into multiple scripts. The main script "main.jl" calls all the functions performing SIM reconstruction and the input parameter script "input_parameters.jl" defines all the input parameters needed to perform reconstruction (see the image below).
 
-![image](https://github.com/user-attachments/assets/238ebb86-a5dd-4025-9154-749fc8432555)
+![image](https://github.com/user-attachments/assets/ea85c21c-a4fa-4a5d-b782-f7bfa635a436)
+
 
 
 
