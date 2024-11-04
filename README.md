@@ -70,7 +70,8 @@ B-SIM code can now be executed by simply importing the "main.jl" in the REPL as 
 ```include("main.jl")```
 
 
-![image](https://github.com/ayushsaurabh/B-SIM/assets/87823118/3c2056cf-7ee2-4d47-bc4d-d428e9c5a095)
+![image](https://github.com/user-attachments/assets/daeee0ee-1f9b-4b03-81ec-c7758c32dfb2)
+
 
 
 
