@@ -107,6 +107,7 @@ where % indicates remainder upon division. For instance, using the default setti
 10020, 10040, 10060, ..., 10080,...
 
 ```
+![image](https://github.com/user-attachments/assets/ca08879b-2745-4150-b158-ac702f760c5f)
 
 
 ## A Brief Description of the Sampler
